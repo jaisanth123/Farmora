@@ -11,6 +11,8 @@ import WeatherForecast from "./components/weather/WeatherForecast";
 //import FarmerRegistrationForm from "./components/FarmerRegistrationForm";
 import { AuthProvider } from "./context/AuthContext";
 import FarmerRegistrationForm from "./components/FarmerRegistrationForm";
+import MarketAnalysisPage from "./components/market_Analysis/MarketAnalysisPage";
+import PlantDiseaseUploader from "./components/PlantDisease/PlantDiseaseUploader";
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -95,6 +97,11 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/weather" element={<WeatherForecast />} />
               <Route path="/form" element={<FarmerRegistrationForm />} />
+              <Route path="/market-analysis" element={<MarketAnalysisPage />} />
+              <Route
+                path="/disease-diagnosis"
+                element={<PlantDiseaseUploader />}
+              />
             </Routes>
           </main>
         </div>

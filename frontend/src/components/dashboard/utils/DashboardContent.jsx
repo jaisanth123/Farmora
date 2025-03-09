@@ -16,8 +16,13 @@ import QuickActionCard from "../QuickActionCard";
 import MarketChart from "../MarketChart";
 import StatCard from "../StatCard";
 import RecentActivity from "../RecentActivity";
+import NewsDetailComponent from "./NewsDetailComponent";
+import AgricultureNewsCarousel from "./AgricultureNewsCarousel";
+import PlantDiseaseUploader from "../../PlantDisease/PlantDiseaseUploader";
+import { useState } from "react";
 
 const DashboardContent = ({ events }) => {
+  const [selectedNews, setSelectedNews] = useState(null);
   // Quick action cards data with descriptions
   const quickActions = [
     {
@@ -127,6 +132,14 @@ const DashboardContent = ({ events }) => {
       },
     ],
   };
+  const handleNewsClick = (news) => {
+    setSelectedNews(news);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleBackToNews = () => {
+    setSelectedNews(null);
+  };
 
   return (
     <>
@@ -144,6 +157,11 @@ const DashboardContent = ({ events }) => {
           />
         ))}
       </div>
+      {selectedNews ? (
+        <NewsDetailComponent news={selectedNews} onBack={handleBackToNews} />
+      ) : (
+        <AgricultureNewsCarousel onNewsClick={handleNewsClick} />
+      )}
 
       {/* Weather Summary Card */}
       <motion.div
