@@ -1,5 +1,6 @@
 import express from 'express';
 import Farmer from '../models/farmer.js';
+import { getFarmerData } from '../controllers/farmerController.js'; // Use import instead of require
 
 const router = express.Router();
 
@@ -44,5 +45,7 @@ router.get('/profile/:uid', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+router.get('/data/:userId', getFarmerData);
 
 export default router; 

@@ -157,6 +157,7 @@ const DISTRICT_SOIL_MAP =
       "Lateritic": {"N": 25, "P": 15, "K": 40, "pH": 5.0}
     }
   },
+  //loamy
   "soil_color_map": {
     "Red Sandy Loam": "Red",
     "Red": "Red",

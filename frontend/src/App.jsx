@@ -7,7 +7,11 @@ import Sidebar from "./components/utils/Sidebar";
 import Navbar from "./components/utils/Navbar";
 import ChatbotDialog from "./components/chatbot/ChatbotDialog";
 import { AuthProvider } from './context/AuthContext';
+import ForumPage from "./components/forum/ForumPage";
+import WeatherForecast from "./components/weather/WeatherForecast";
 import FarmerRegistrationForm from "./components/FarmerRegistrationForm";
+import CropRecommendationForm from "./components/models/CropRecommendationForm";
+
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -89,6 +93,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/crop-recommendation" element={<CropRecommendationForm/>}/>
             <Route path="/form" element={<FarmerRegistrationForm />} />
           </Routes>
         </main>

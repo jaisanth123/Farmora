@@ -1,69 +1,135 @@
-import React from "react";
-import StatCard from "./StatCard";
-import RecentActivity from "./RecentActivity";
-import QuickActions from "./QuickActions";
-import PerformanceChart from "./ PerformanceChart";
-import ChatbotIcon from "../chatbot/ChatbotIcon";
-import ChatbotDialog from "../chatbot/ChatbotDialog";
-import { useState } from "react";
-import { FaChartLine, FaClipboardList, FaUsers, FaCheck } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+// Imported Components
+import DashboardHeader from "./utils/DashboardHeader";
+import ActionMenuBar from "./utils/ActionMenuBar";
+import DashboardContent from "./utils/DashboardContent";
+import CalendarView from "./utils/CalendarView";
+import ChatbotWrapper from "./utils/ChatbotWrapper";
+
+// Google Calendar API integration
+import { fetchGoogleCalendarEvents } from "./utils/fetchGoogleCalendarEvents";
 
 const Dashboard = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [weatherData, setWeatherData] = useState(null);
+  const [isWeatherLoading, setIsWeatherLoading] = useState(true);
+  const [events, setEvents] = useState([]);
+  const [viewType, setViewType] = useState("dashboard"); // "dashboard" or "calendar"
 
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen);
   };
 
+  // Welcome notification
+  useEffect(() => {
+    if (showWelcome) {
+      toast.success("Welcome back to your farm dashboard!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      setShowWelcome(false);
+    }
+  }, [showWelcome]);
+
+  // Load calendar events
+  useEffect(() => {
+    // Try to fetch from Google Calendar API first
+    const loadEvents = async () => {
+      try {
+        const googleEvents = await fetchGoogleCalendarEvents();
+        setEvents(googleEvents);
+      } catch (error) {
+        console.error("Error loading Google Calendar events:", error);
+        // Fallback to sample data
+        loadSampleEvents();
+      }
+    };
+
+    loadEvents();
+  }, []);
+
+  // Fallback sample events
+  const loadSampleEvents = () => {
+    const farmEvents = [
+      {
+        title: "Wheat Harvesting",
+        start: new Date(2025, 2, 10),
+        end: new Date(2025, 2, 12),
+        allDay: true,
+        resource: "wheat-field-1",
+        color: "#10B981", // green
+      },
+      {
+        title: "Pesticide Application",
+        start: new Date(2025, 2, 11),
+        end: new Date(2025, 2, 11),
+        allDay: true,
+        resource: "rice-field-2",
+        color: "#F59E0B", // yellow
+      },
+      {
+        title: "Irrigation Check",
+        start: new Date(2025, 2, 12),
+        end: new Date(2025, 2, 12),
+        allDay: true,
+        resource: "all-fields",
+        color: "#3B82F6", // blue
+      },
+      {
+        title: "Market Visit",
+        start: new Date(2025, 2, 15),
+        end: new Date(2025, 2, 15),
+        allDay: true,
+        resource: "sales",
+        color: "#8B5CF6", // purple
+      },
+      {
+        title: "Soil Testing",
+        start: new Date(2025, 2, 18),
+        end: new Date(2025, 2, 19),
+        allDay: true,
+        resource: "all-fields",
+        color: "#EC4899", // pink
+      },
+    ];
+
+    setEvents(farmEvents);
+  };
+
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">Dashboard</h1>
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <ToastContainer />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard
-          title="Total Tests"
-          value="24"
-          change="+12%"
-          icon={<FaClipboardList className="text-blue-500" />}
-        />
-        <StatCard
-          title="Avg. Score"
-          value="78%"
-          change="+5%"
-          icon={<FaChartLine className="text-green-500" />}
-        />
-        <StatCard
-          title="Students"
-          value="156"
-          change="+23%"
-          icon={<FaUsers className="text-purple-500" />}
-        />
-        <StatCard
-          title="Completion"
-          value="92%"
-          change="+8%"
-          icon={<FaCheck className="text-yellow-500" />}
-        />
-      </div>
+      {/* Header with weather info */}
+      <DashboardHeader
+        weatherData={weatherData}
+        setWeatherData={setWeatherData}
+        isWeatherLoading={isWeatherLoading}
+        setIsWeatherLoading={setIsWeatherLoading}
+        showWelcome={showWelcome}
+      />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div className="lg:col-span-2">
-          <PerformanceChart />
-        </div>
-        <div>
-          <QuickActions />
-        </div>
-      </div>
+      {/* Action Menu Bar */}
+      <ActionMenuBar viewType={viewType} setViewType={setViewType} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-3">
-          <RecentActivity />
-        </div>
-      </div>
+      {/* Main Content - Dashboard or Calendar */}
+      {viewType === "dashboard" ? (
+        <DashboardContent events={events} />
+      ) : (
+        <CalendarView events={events} />
+      )}
 
-      {/* Chatbot Components */}
-      <ChatbotIcon toggleChat={toggleChat} isOpen={isChatOpen} />
-      {isChatOpen && <ChatbotDialog closeChat={() => setIsChatOpen(false)} />}
+      {/* Chatbot Component */}
+      <ChatbotWrapper
+        isChatOpen={isChatOpen}
+        toggleChat={toggleChat}
+        setIsChatOpen={setIsChatOpen}
+      />
     </div>
   );
 };
