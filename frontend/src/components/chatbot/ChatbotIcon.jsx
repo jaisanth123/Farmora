@@ -6,12 +6,14 @@ const ChatbotIcon = ({ toggleChat, isOpen }) => {
   return (
     <button
       onClick={toggleChat}
-      className="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-black text-white shadow-lg hover:bg-gray-800 transition-all duration-300"
+      className="fixed bottom-8 right-8 z-50 p-4 rounded-full shadow-xl 
+                 bg-black transition-all duration-300 transform hover:scale-110 
+                 hover:shadow-2xl active:scale-95 flex items-center justify-center"
     >
       {isOpen ? (
-        <FaTimes className="h-6 w-6" />
+        <FaTimes className="text-3xl text-white" />
       ) : (
-        <FaRobot className="h-6 w-6" />
+        <FaRobot className="text-3xl text-white" />
       )}
     </button>
   );
