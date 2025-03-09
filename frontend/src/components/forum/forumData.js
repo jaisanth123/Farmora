@@ -1,0 +1,42 @@
+export const forumTopics = [
+  {
+    id: "crop-suggestion",
+    name: "Crop Suggestions",
+    description: "Discuss the best crops for your soil and climate",
+    icon: "🌾",
+    color: "bg-green-100 text-green-800",
+    postCount: 24,
+  },
+  {
+    id: "disease-prediction",
+    name: "Disease Prediction",
+    description: "Share plant disease symptoms and get community help",
+    icon: "🔬",
+    color: "bg-red-100 text-red-800",
+    postCount: 17,
+  },
+  {
+    id: "general",
+    name: "General Discussion",
+    description: "Talk about anything related to farming",
+    icon: "💬",
+    color: "bg-blue-100 text-blue-800",
+    postCount: 35,
+  },
+  {
+    id: "market-trends",
+    name: "Market Trends",
+    description: "Share insights about agricultural market prices",
+    icon: "📊",
+    color: "bg-purple-100 text-purple-800",
+    postCount: 12,
+  },
+  {
+    id: "farming-tech",
+    name: "Farming Technology",
+    description: "Discuss modern farming technologies and tools",
+    icon: "🚜",
+    color: "bg-yellow-100 text-yellow-800",
+    postCount: 19,
+  },
+];
