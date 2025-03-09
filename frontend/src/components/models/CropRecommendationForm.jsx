@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext'; // Import useAuth to access currentUser
 import { useNavigate } from 'react-router-dom'; // Import useNavigate instead of useHistory
+import { ToastContainer, toast } from 'react-toastify'; // Import ToastContainer and toast
+import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for toast notifications
 
 function CropRecommendationForm() {
   const { currentUser } = useAuth(); // Get the current user from AuthContext
@@ -37,14 +39,16 @@ function CropRecommendationForm() {
         }
 
         const data = await response.json();
-        // Populate formData with user data
+        console.log(data); // Log the entire response for debugging
+
+        // Safeguard against undefined properties
         setFormData({
-          N: data.landInfo.soilProperties.nitrogen,
-          P: data.landInfo.soilProperties.phosphorous,
-          K: data.landInfo.soilProperties.potassium,
-          temperature: data.environmentalConditions.temperature,
-          humidity: data.environmentalConditions.humidity,
-          rainfall: data.environmentalConditions.rainfall,
+          N: data.landInfo?.soilProperties?.nitrogen || 0,
+          P: data.landInfo?.soilProperties?.phosphorous || 0,
+          K: data.landInfo?.soilProperties?.potassium || 0,
+          temperature: data.landInfo?.environmentalConditions?.temperature || 0,
+          humidity: data.landInfo?.environmentalConditions?.humidity || 0,
+          rainfall: data.landInfo?.environmentalConditions?.rainfall || 0,
         });
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -91,10 +95,12 @@ function CropRecommendationForm() {
         throw new Error('Failed to update user data');
       }
 
-      console.log('User data updated successfully');
-      // Optionally, show a success message or redirect
+      const updatedFarmerData = await response.json();
+      console.log('User data updated successfully:', updatedFarmerData);
+      toast.success('User data updated successfully!'); // Show success toast
     } catch (error) {
       console.error('Error updating user data:', error);
+      toast.error('Error updating user data: ' + error.message); // Show error toast
     }
   };
 
@@ -252,6 +258,7 @@ function CropRecommendationForm() {
           </ul>
         </div>
       )}
+      <ToastContainer /> {/* Add this line to render the toast notifications */}
     </div>
   );
 }

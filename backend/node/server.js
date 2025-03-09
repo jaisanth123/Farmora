@@ -20,9 +20,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Routes
-app.use('/api/farmers', farmerRoutes);
-
+// Route
 // Define Python API URL
 const PYTHON_API_URL = process.env.PYTHON_API_URL || 'http://localhost:8000';
 
@@ -42,6 +40,8 @@ app.use('/api/environmental_conditions', createProxyMiddleware({
     '^/api/environmental_conditions': '/api/environmental_conditions' // keep the same path
   }
 }));
+
+app.use('/api/farmer', farmerRoutes);
 
 // Basic route for testing
 app.get('/', (req, res) => {

@@ -1,6 +1,6 @@
 import express from 'express';
 import Farmer from '../models/farmer.js';
-import { getFarmerData } from '../controllers/farmerController.js'; // Use import instead of require
+import { getFarmerData, updateFarmerData } from '../controllers/farmerController.js';
 
 const router = express.Router();
 
@@ -46,6 +46,12 @@ router.get('/profile/:uid', async (req, res) => {
   }
 });
 
-router.get('/data/:userId', getFarmerData);
+router.get('/data/:userId', (req, res, next) => {
+  console.log("Route hit for userId:", req.params.userId); // Log the route hit
+  next(); // Call the next middleware (controller)
+}, getFarmerData);
+
+router.put('/data/:userId', updateFarmerData); // Ensure this route is defined
+
 
 export default router; 

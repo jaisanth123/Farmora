@@ -426,7 +426,7 @@ const WeatherForecast = () => {
           <>
             {/* Current weather card */}
             <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
-              <div className="bg-gradient-to-r from-blue-500 to-blue-400 text-white p-4">
+              <div className="bg-gradient-to-r bg-black text-white p-4">
                 <div className="flex justify-between items-center">
                   <div>
                     <h2 className="text-xl font-semibold">
@@ -458,7 +458,7 @@ const WeatherForecast = () => {
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <FaTint className="text-blue-500 mr-2" />
+                    <FaTint className="text-blue-300 mr-2" />
                     <div>
                       <p className="text-sm text-gray-500">Humidity</p>
                       <p className="font-medium">
