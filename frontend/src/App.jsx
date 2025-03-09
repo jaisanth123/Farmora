@@ -86,7 +86,7 @@ function App() {
             </div>
           )}
 
-          <main className="flex-grow pt-20 px-4">
+          <main className="flex-grow  pt-20 px-4">
             <Routes>
               <Route path="/forum" element={<ForumPage />} />
               <Route path="/" element={<Register />} />
