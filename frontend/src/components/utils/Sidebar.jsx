@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
+import { useAuth } from '../../context/AuthContext'; // Import useAuth to access the logout function
 import {
   FaTimes,
   FaClock,
@@ -12,16 +13,18 @@ import {
 
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
+  const { logout } = useAuth(); // Get the logout function from AuthContext
 
-  const handleLogout = () => {
-    // Remove JWT token from sessionStorage
-    sessionStorage.removeItem("jwtToken");
-    // Set a flag to indicate logout action (optional but helpful)
-    sessionStorage.setItem("justLoggedOut", "true");
-    // Close sidebar first
-    onClose();
-    // Then navigate to signin page
-    navigate("/signin");
+  const handleLogout = async () => {
+    console.log("Logout function called"); // Log when the function is called
+    try {
+      await logout(); // Call the logout function from AuthContext
+      console.log("Logout successful"); // Log successful logout
+      onClose(); // Close the sidebar
+      navigate("/login"); // Redirect to the login page
+    } catch (error) {
+      console.error("Logout error:", error); // Log any errors
+    }
   };
 
   return (
