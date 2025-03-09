@@ -3,9 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from utils.lon import router as coordinates_router
 from utils.weather import router as environmental_router
 from utils.multilingual import router as multilingual_router
-from models.crop_recommend import router as crop_recommend_router
+from models.crop_recommend.crop_recommend import router as crop_recommend_router
+from models.pest.pest import router as pest_router
 app = FastAPI()
-
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -20,6 +20,8 @@ app.include_router(coordinates_router, prefix="/api")
 app.include_router(environmental_router, prefix="/api")
 app.include_router(multilingual_router, prefix="/api")
 app.include_router(crop_recommend_router, prefix="/api")
+app.include_router(pest_router, prefix="/api")
+
 
 # Root endpoint
 @app.get("/")

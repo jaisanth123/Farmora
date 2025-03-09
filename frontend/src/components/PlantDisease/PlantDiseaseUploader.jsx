@@ -10,6 +10,7 @@ import {
 
 const PlantDiseaseUploader = () => {
   const [image, setImage] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [plantName, setPlantName] = useState("");
   const [description, setDescription] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -17,6 +18,9 @@ const PlantDiseaseUploader = () => {
   const [error, setError] = useState("");
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
+
+  // API endpoint
+  const API_URL = 'http://localhost:8000';
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -26,11 +30,54 @@ const PlantDiseaseUploader = () => {
         return;
       }
       setError("");
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onload = () => {
         setImage(reader.result);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedFile) {
+      setError("Please upload an image of the plant.");
+      return;
+    }
+    setError("");
+    setIsAnalyzing(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      const response = await fetch(`${API_URL}/api/predict_upload/`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get prediction');
+      }
+
+      const prediction = await response.json();
+      
+      // Format the prediction data to match the UI structure
+      setResult({
+        disease: prediction.prediction,
+        confidence: Math.round(prediction.confidence * 100),
+        description: prediction.pest_control_advice || "No description available",
+        treatment: prediction.chemical_pesticides 
+          ? [prediction.chemical_pesticides]
+          : ["No specific treatment available"],
+        severity: "Moderate", // You can add severity logic based on confidence
+      });
+    } catch (err) {
+      setError('Error: ' + err.message);
+      console.error('Error during prediction:', err);
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
@@ -42,39 +89,9 @@ const PlantDiseaseUploader = () => {
     cameraInputRef.current.click();
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!image) {
-      setError("Please upload an image of the plant.");
-      return;
-    }
-    setError("");
-    setIsAnalyzing(true);
-
-    // Simulate API call for diagnosis
-    setTimeout(() => {
-      // Mock response - in a real app, this would come from your backend
-      const mockResult = {
-        disease: "Leaf Blight",
-        confidence: 87,
-        description:
-          "Leaf blight is characterized by irregular brown spots that eventually cause the leaf to wither and die.",
-        treatment: [
-          "Remove and destroy infected leaves",
-          "Apply copper-based fungicide",
-          "Ensure proper spacing between plants for airflow",
-          "Avoid overhead watering to keep leaves dry",
-        ],
-        severity: "Moderate",
-      };
-
-      setResult(mockResult);
-      setIsAnalyzing(false);
-    }, 2000);
-  };
-
   const resetForm = () => {
     setImage(null);
+    setSelectedFile(null);
     setPlantName("");
     setDescription("");
     setResult(null);
