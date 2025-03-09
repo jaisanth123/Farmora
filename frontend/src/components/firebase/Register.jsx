@@ -2,28 +2,30 @@ import React, { useState } from "react";
 import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "./firebase";
 import { ToastContainer, toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import axios from 'axios';
 import { motion } from "framer-motion";
 
 const Register = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       toast.success("Account created successfully!");
-      navigate("/dashboard", { state: { userId: userCredential.user.uid } });
+      // Use navigate instead of window.location.href
+      navigate("/form", { 
+        state: { userId: userCredential.user.uid },
+        replace: true 
+      });
     } catch (error) {
+      console.error("Registration error:", error);
       toast.error("Failed to create account.");
     } finally {
       setLoading(false);
@@ -35,7 +37,11 @@ const Register = () => {
     try {
       const userCredential = await signInWithPopup(auth, googleProvider);
       toast.success("Signed in with Google successfully!");
-      navigate("/dashboard", { state: { userId: userCredential.user.uid } });
+      // Use navigate instead of window.location.href
+      navigate("/form", { 
+        state: { userId: userCredential.user.uid },
+        replace: true 
+      });
     } catch (error) {
       toast.error("Google Sign-In failed.");
     } finally {
@@ -203,9 +209,9 @@ const Register = () => {
         <div className="mt-6 text-center">
           <p className="text-gray-600">
             Already registered?{" "}
-            <a href="/login" className="text-black font-medium hover:underline">
+            <Link to="/login" className="text-black font-medium hover:underline">
               Sign In
-            </a>
+            </Link>
           </p>
           <p className="text-xs text-gray-500 mt-4">
             By registering, you agree to our{" "}

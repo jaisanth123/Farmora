@@ -48,8 +48,10 @@ def get_coordinates(place: str):
         try:
             data = response.json()
             if data:
+                #print(data)
                 latitude = data[0]['lat']
                 longitude = data[0]['lon']
+                print(latitude, longitude)
                 return {"latitude": latitude, "longitude": longitude}
             else:
                 return {"error": "No data found for the specified location."}

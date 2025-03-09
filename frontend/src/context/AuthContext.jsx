@@ -6,6 +6,7 @@ import {
   createUserWithEmailAndPassword,
   signOut
 } from 'firebase/auth';
+import { auth } from '../components/firebase/firebase'; // Update this import path
 
 const AuthContext = createContext();
 
@@ -16,7 +17,6 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const auth = getAuth();
 
   function signup(email, password) {
     return createUserWithEmailAndPassword(auth, email, password);
@@ -37,13 +37,14 @@ export function AuthProvider({ children }) {
     });
 
     return unsubscribe;
-  }, [auth]);
+  }, []);
 
   const value = {
     currentUser,
     signup,
     login,
-    logout
+    logout,
+    loading
   };
 
   return (

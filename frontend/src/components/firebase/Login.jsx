@@ -3,6 +3,7 @@ import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "./firebase";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 
@@ -23,7 +24,10 @@ const Login = () => {
         password
       );
       toast.success("Login successful!");
-      navigate("/dashboard", { state: { userId: userCredential.user.uid } });
+      navigate("/dashboard", { 
+        state: { userId: userCredential.user.uid },
+        replace: true 
+      });
     } catch (error) {
       toast.error("Invalid email or password.");
     } finally {
@@ -36,7 +40,10 @@ const Login = () => {
     try {
       const userCredential = await signInWithPopup(auth, googleProvider);
       toast.success("Signed in with Google successfully!");
-      navigate("/dashboard", { state: { userId: userCredential.user.uid } });
+      navigate("/dashboard", { 
+        state: { userId: userCredential.user.uid },
+        replace: true 
+      });
     } catch (error) {
       toast.error("Google Sign-In failed.");
     } finally {

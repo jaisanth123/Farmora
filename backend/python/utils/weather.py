@@ -170,7 +170,7 @@ def get_weather_conditions(latitude: float, longitude: float):
 
     if response.status_code == 200:
         data = response.json()
-
+        print(data)
         # Extracting full data for internal use (logging, debugging, etc.)
         full_data = {
             "location": data.get('location'),
@@ -194,7 +194,7 @@ def get_weather_conditions(latitude: float, longitude: float):
         for day in forecast:
             daily_rainfall = day['day']['totalprecip_mm']  # Total precipitation for the day
             frontend_data["rainfall"] += daily_rainfall  # Accumulate daily rainfall
-
+        print(frontend_data)
         return frontend_data
 
     else:
