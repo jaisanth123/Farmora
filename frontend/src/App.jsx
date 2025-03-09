@@ -9,10 +9,12 @@ import ChatbotDialog from "./components/chatbot/ChatbotDialog";
 import { AuthProvider } from './context/AuthContext';
 import ForumPage from "./components/forum/ForumPage";
 import WeatherForecast from "./components/weather/WeatherForecast";
-import FarmerRegistrationForm from "./components/FarmerRegistrationForm";
-import CropRecommendationForm from "./components/models/CropRecommendationForm";
+import FarmerRegistrationForm from "./components/utils/FarmerRegistrationForm";
+import CropRecommendationForm from "./components/CropRecommend/CropRecommendationForm";
 import MarketAnalysisPage from "./components/market_Analysis/MarketAnalysisPage";
 import PlantDiseaseUploader from "./components/PlantDisease/PlantDiseaseUploader";
+import FarmerProfile from './components/utils/FarmerProfile';
+
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -99,6 +101,7 @@ function App() {
               <Route path="/form" element={<FarmerRegistrationForm />} />
               <Route path="/market-analysis" element={<MarketAnalysisPage />} />\
               <Route path="/crop-recommendation" element={<CropRecommendationForm/>}/>
+              <Route path="/profile" element={<FarmerProfile />} />
               <Route
                 path="/disease-diagnosis"
                 element={<PlantDiseaseUploader />}
