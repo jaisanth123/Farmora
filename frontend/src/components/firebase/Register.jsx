@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -102,15 +103,24 @@ const Register = () => {
             >
               Password
             </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black text-black placeholder-gray-400"
-              placeholder="Create a password (min. 6 characters)"
-            />
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"} // Toggle between text and password
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black text-black placeholder-gray-400"
+                placeholder="Create a password (min. 6 characters)"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-black text-xl"
+              >
+                {showPassword ? "👀" : "🙈"}
+              </button>
+            </div>
           </div>
 
           <motion.button
