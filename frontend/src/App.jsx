@@ -7,6 +7,7 @@ import Sidebar from "./components/utils/Sidebar";
 import Navbar from "./components/utils/Navbar";
 import ChatbotDialog from "./components/chatbot/ChatbotDialog";
 
+//import FarmerRegistrationForm from "./components/FarmerRegistrationForm";
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);

@@ -67,84 +67,136 @@
 #         print("✅ No Weather Alerts for the selected location and time period.")
 # else:
 #     print(f"❌ Failed to fetch data. HTTP Status Code: {response.status_code}")
+
+
+#---------------------------------------------------------------------
+# import requests
+# import json
+
+# # 🔑 Your WeatherAPI Key
+# api_key = '1172476f50624984850114232250203'
+
+# # 📍 Latitude and Longitude for Connaught Place, Delhi
+# latitude = 28.6315
+# longitude = 77.2167
+
+# # 🌐 API Endpoint with Forecast and Alerts Enabled
+# url = f"http://api.weatherapi.com/v1/forecast.json?key={api_key}&q={latitude},{longitude}&days=3&alerts=yes&aqi=yes"
+
+# # 📨 API Request
+# response = requests.get(url)
+
+# if response.status_code == 200:
+#     data = response.json()
+
+#     # 🎯 Pretty print the full JSON response to explore all available data
+#     print(json.dumps(data, indent=4))
+
+#     print("\n🟢 Extracting All Available Weather Information...\n")
+
+#     # 🌍 Location Details
+#     location = data['location']
+#     print(f"📍 Location: {location['name']}, {location['region']}, {location['country']}")
+#     print(f"🕒 Local Time: {location['localtime']}")
+#     print(f"🧭 Latitude: {location['lat']}, Longitude: {location['lon']}")
+#     print(f"🌐 Timezone: {location['tz_id']}\n")
+
+#     # 🌦️ Current Weather
+#     current = data['current']
+#     print("🌡️ Current Weather:")
+#     print(f"🌡️ Temperature: {current['temp_c']}°C")
+#     print(f"🌡️ Feels Like: {current['feelslike_c']}°C")
+#     print(f"🌥️ Condition: {current['condition']['text']}")
+#     print(f"💧 Humidity: {current['humidity']}%")
+#     print(f"🌬️ Wind Speed: {current['wind_kph']} kph")
+#     print(f"🧭 Wind Direction: {current['wind_dir']}")
+#     print(f"📈 Pressure: {current['pressure_mb']} mb")
+#     print(f"🌫️ Visibility: {current['vis_km']} km")
+#     print(f"☁️ Cloud Cover: {current['cloud']}%")
+#     print(f"☀️ UV Index: {current['uv']}")
+#     print(f"🌡️ Dew Point: {current['dewpoint_c']}°C\n")
+
+#     # 🔮 Forecast Details
+#     forecast = data['forecast']['forecastday']
+#     for day in forecast:
+#         print(f"📅 Date: {day['date']}")
+#         print(f"🌡️ Max Temp: {day['day']['maxtemp_c']}°C")
+#         print(f"🌡️ Min Temp: {day['day']['mintemp_c']}°C")
+#         print(f"🌦️ Condition: {day['day']['condition']['text']}")
+#         print(f"🌧️ Precipitation: {day['day']['totalprecip_mm']} mm")
+#         print(f"🌬️ Max Wind: {day['day']['maxwind_kph']} kph")
+#         print(f"🌄 Sunrise: {day['astro']['sunrise']}")
+#         print(f"🌇 Sunset: {day['astro']['sunset']}")
+
+#         # 🔍 Hourly Data
+#         print("\n🕒 Hourly Forecast:")
+#         for hour in day['hour']:
+#             print(f"🕒 Time: {hour['time']}")
+#             print(f"🌡️ Temp: {hour['temp_c']}°C")
+#             print(f"🌥️ Condition: {hour['condition']['text']}")
+#             print(f"🌧️ Precipitation: {hour['precip_mm']} mm")
+#             print(f"💧 Humidity: {hour['humidity']}%")
+#             print(f"🌬️ Wind Speed: {hour['wind_kph']} kph\n")
+#         print("--------------------------------------------------\n")
+
+#     # 🚨 Weather Alerts (if any)
+#     if 'alerts' in data and data['alerts']['alert']:
+#         print("🚨 Weather Alerts:")
+#         for alert in data['alerts']['alert']:
+#             print(f"📢 Alert: {alert['headline']}")
+#             print(f"🕒 Effective: {alert['effective']}")
+#             print(f"⏲️ Expires: {alert['expires']}")
+#             print(f"📄 Description: {alert['desc']}\n")
+#     else:
+#         print("✅ No Weather Alerts for the selected location and time period.")
+# else:
+#     print(f"❌ Failed to fetch data. HTTP Status Code: {response.status_code}")
+
+
+
+#---------------------------------------------------------------------
+
 import requests
-import json
+from fastapi import APIRouter
 
-# 🔑 Your WeatherAPI Key
-api_key = '1172476f50624984850114232250203'
+router = APIRouter()
 
-# 📍 Latitude and Longitude for Connaught Place, Delhi
-latitude = 28.6315
-longitude = 77.2167
+@router.get("/environmental_conditions")
+def get_weather_conditions(latitude: float, longitude: float):
+    api_key = '1172476f50624984850114232250203'
+    url = f"http://api.weatherapi.com/v1/forecast.json?key={api_key}&q={latitude},{longitude}&days=3&alerts=yes&aqi=yes"
 
-# 🌐 API Endpoint with Forecast and Alerts Enabled
-url = f"http://api.weatherapi.com/v1/forecast.json?key={api_key}&q={latitude},{longitude}&days=3&alerts=yes&aqi=yes"
+    response = requests.get(url)
 
-# 📨 API Request
-response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
 
-if response.status_code == 200:
-    data = response.json()
+        # Extracting full data for internal use (logging, debugging, etc.)
+        full_data = {
+            "location": data.get('location'),
+            "current_weather": data.get('current'),
+            "forecast": data.get('forecast'),
+            "alerts": data.get('alerts')
+        }
 
-    # 🎯 Pretty print the full JSON response to explore all available data
-    print(json.dumps(data, indent=4))
+        # Extracting specific data to send to frontend (Temperature, Humidity, and Rainfall)
+        current = data['current']
+        forecast = data['forecast']['forecastday']
 
-    print("\n🟢 Extracting All Available Weather Information...\n")
+        # Prepare data to send to the frontend
+        frontend_data = {
+            "temperature": current['temp_c'],  # Current temperature in Celsius
+            "humidity": current['humidity'],   # Current humidity percentage
+            "rainfall": 0  # Default rainfall value
+        }
 
-    # 🌍 Location Details
-    location = data['location']
-    print(f"📍 Location: {location['name']}, {location['region']}, {location['country']}")
-    print(f"🕒 Local Time: {location['localtime']}")
-    print(f"🧭 Latitude: {location['lat']}, Longitude: {location['lon']}")
-    print(f"🌐 Timezone: {location['tz_id']}\n")
+        # Loop through the forecast to get daily rainfall (precipitation)
+        for day in forecast:
+            daily_rainfall = day['day']['totalprecip_mm']  # Total precipitation for the day
+            frontend_data["rainfall"] += daily_rainfall  # Accumulate daily rainfall
 
-    # 🌦️ Current Weather
-    current = data['current']
-    print("🌡️ Current Weather:")
-    print(f"🌡️ Temperature: {current['temp_c']}°C")
-    print(f"🌡️ Feels Like: {current['feelslike_c']}°C")
-    print(f"🌥️ Condition: {current['condition']['text']}")
-    print(f"💧 Humidity: {current['humidity']}%")
-    print(f"🌬️ Wind Speed: {current['wind_kph']} kph")
-    print(f"🧭 Wind Direction: {current['wind_dir']}")
-    print(f"📈 Pressure: {current['pressure_mb']} mb")
-    print(f"🌫️ Visibility: {current['vis_km']} km")
-    print(f"☁️ Cloud Cover: {current['cloud']}%")
-    print(f"☀️ UV Index: {current['uv']}")
-    print(f"🌡️ Dew Point: {current['dewpoint_c']}°C\n")
+        return frontend_data
 
-    # 🔮 Forecast Details
-    forecast = data['forecast']['forecastday']
-    for day in forecast:
-        print(f"📅 Date: {day['date']}")
-        print(f"🌡️ Max Temp: {day['day']['maxtemp_c']}°C")
-        print(f"🌡️ Min Temp: {day['day']['mintemp_c']}°C")
-        print(f"🌦️ Condition: {day['day']['condition']['text']}")
-        print(f"🌧️ Precipitation: {day['day']['totalprecip_mm']} mm")
-        print(f"🌬️ Max Wind: {day['day']['maxwind_kph']} kph")
-        print(f"🌄 Sunrise: {day['astro']['sunrise']}")
-        print(f"🌇 Sunset: {day['astro']['sunset']}")
-
-        # 🔍 Hourly Data
-        print("\n🕒 Hourly Forecast:")
-        for hour in day['hour']:
-            print(f"🕒 Time: {hour['time']}")
-            print(f"🌡️ Temp: {hour['temp_c']}°C")
-            print(f"🌥️ Condition: {hour['condition']['text']}")
-            print(f"🌧️ Precipitation: {hour['precip_mm']} mm")
-            print(f"💧 Humidity: {hour['humidity']}%")
-            print(f"🌬️ Wind Speed: {hour['wind_kph']} kph\n")
-        print("--------------------------------------------------\n")
-
-    # 🚨 Weather Alerts (if any)
-    if 'alerts' in data and data['alerts']['alert']:
-        print("🚨 Weather Alerts:")
-        for alert in data['alerts']['alert']:
-            print(f"📢 Alert: {alert['headline']}")
-            print(f"🕒 Effective: {alert['effective']}")
-            print(f"⏲️ Expires: {alert['expires']}")
-            print(f"📄 Description: {alert['desc']}\n")
     else:
-        print("✅ No Weather Alerts for the selected location and time period.")
-else:
-    print(f"❌ Failed to fetch data. HTTP Status Code: {response.status_code}")
+        return {"error": f"Failed to fetch weather data. Status code: {response.status_code}"}
+
