@@ -10,10 +10,12 @@ import Navbar from "./components/utils/Navbar";
 import ChatbotDialog from "./components/chatbot/ChatbotDialog";
 import ForumPage from "./components/forum/ForumPage";
 import WeatherForecast from "./components/weather/WeatherForecast";
-import FarmerRegistrationForm from "./components/utils/FarmerRegistrationForm";
+import FarmerRegistrationForm from "./components/utils/FarmerRegistration/FarmerRegistration.jsx";
+// D:\KEC HACK 2.0\frontend\src\components\utils\components\FarmerRegistration\FarmerRegistration.jsx
 import CropRecommendationForm from "./components/CropRecommend/CropRecommendationForm";
 import MarketAnalysisPage from "./components/market_Analysis/MarketAnalysisPage";
 import PlantDiseaseUploader from "./components/PlantDisease/PlantDiseaseUploader";
+import PlantDiseasePredictor from "./components/PlantDisease/PlantDiseasePredictor";
 import FarmerProfile from "./components/utils/FarmerProfile";
 
 function App() {
@@ -108,7 +110,8 @@ function App() {
               <Route path="/profile" element={<FarmerProfile />} />
               <Route
                 path="/disease-diagnosis"
-                element={<PlantDiseaseUploader />}
+                element={<PlantDiseasePredictor />}
+                //    element={<PlantDiseaseUploader />}
               />
             </Routes>
           </main>

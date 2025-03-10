@@ -34,11 +34,7 @@ const ActionMenuBar = ({ viewType, setViewType }) => {
           Calendar
         </button>
       </div>
-      <div>
-        <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-150">
-          Add New Crop
-        </button>
-      </div>
+
       <div className="flex space-x-2">
         <button className="p-2 rounded-full hover:bg-gray-100 relative">
           <FaBell className="text-gray-500" />

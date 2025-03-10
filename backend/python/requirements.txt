@@ -6,3 +6,6 @@ soundfile
 sounddevice
 requests
 python-dotenv 
+scikit-learn
+python-multipart
+pandas
