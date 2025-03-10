@@ -15,6 +15,7 @@ import { fetchGoogleCalendarEvents } from "./utils/fetchGoogleCalendarEvents";
 
 const Dashboard = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
+
   const [showWelcome, setShowWelcome] = useState(true);
   const [weatherData, setWeatherData] = useState(null);
   const [isWeatherLoading, setIsWeatherLoading] = useState(true);

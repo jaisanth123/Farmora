@@ -1,7 +1,8 @@
 // src/components/dashboard/DashboardContent.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
+import axios from "axios";
 import {
   FaCalendarAlt,
   FaSeedling,
@@ -10,6 +11,8 @@ import {
   FaComments,
   FaCloudSun,
   FaRulerCombined,
+  FaTint,
+  FaWind,
 } from "react-icons/fa";
 
 import QuickActionCard from "../QuickActionCard";
@@ -18,11 +21,14 @@ import StatCard from "../StatCard";
 import RecentActivity from "../RecentActivity";
 import NewsDetailComponent from "./NewsDetailComponent";
 import AgricultureNewsCarousel from "./AgricultureNewsCarousel";
-import PlantDiseaseUploader from "../../PlantDisease/PlantDiseaseUploader";
-import { useState } from "react";
+import { toast } from "react-toastify";
 
-const DashboardContent = ({ events }) => {
+const DashboardContent = ({ events, farmerLocation }) => {
   const [selectedNews, setSelectedNews] = useState(null);
+  const [weatherData, setWeatherData] = useState(null);
+  const [isWeatherLoading, setIsWeatherLoading] = useState(false);
+  const [forecastData, setForecastData] = useState([]);
+
   // Quick action cards data with descriptions
   const quickActions = [
     {
@@ -103,35 +109,103 @@ const DashboardContent = ({ events }) => {
     },
   ];
 
-  // Added a weather summary for the dashboard
-  const weatherSummary = {
-    location: "Delhi, India",
-    current: {
-      temp: 32,
-      weather: "Clear",
-      icon: <FaCloudSun className="text-yellow-500" size={24} />,
-    },
-    forecast: [
-      {
-        day: "Today",
-        high: 33,
-        low: 24,
-        icon: <FaCloudSun size={18} className="text-yellow-500" />,
-      },
-      {
-        day: "Mon",
-        high: 34,
-        low: 25,
-        icon: <FaCloudSun size={18} className="text-blue-400" />,
-      },
-      {
-        day: "Tue",
-        high: 30,
-        low: 23,
-        icon: <FaCloudSun size={18} className="text-blue-600" />,
-      },
-    ],
-  };
+  // Fetch weather data (similar to DashboardHeader)
+  useEffect(() => {
+    const fetchWeatherData = async () => {
+      setIsWeatherLoading(true);
+      try {
+        const apiKey =
+          "1172476f50624984850114232250203" || process.env.VITE_WEATHER_API;
+
+        // Use farmer location from props, or default to Erode,India
+        const location = farmerLocation || "Chennai,India";
+
+        // Fetch current weather
+        const currentResponse = await axios.get(
+          `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=no`
+        );
+
+        // Fetch forecast data (3 days)
+        const forecastResponse = await axios.get(
+          `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${location}&days=3&aqi=no`
+        );
+
+        console.log("Weather API Current Response:", currentResponse.data);
+        console.log("Weather API Forecast Response:", forecastResponse.data);
+
+        // Set current weather data
+        setWeatherData({
+          temp: currentResponse.data.current.temp_c,
+          condition: currentResponse.data.current.condition.text,
+          description:
+            currentResponse.data.current.condition.text.toLowerCase(),
+          humidity: currentResponse.data.current.humidity,
+          windSpeed: currentResponse.data.current.wind_kph / 3.6, // Convert km/h to m/s
+          icon: currentResponse.data.current.condition.icon,
+          location: `${currentResponse.data.location.name}, ${currentResponse.data.location.country}`,
+        });
+
+        // Process forecast data for next few days
+        const processedForecast =
+          forecastResponse.data.forecast.forecastday.map((day) => ({
+            day: format(new Date(day.date), "EEE"),
+            high: Math.round(day.day.maxtemp_c),
+            low: Math.round(day.day.mintemp_c),
+            icon: day.day.condition.icon,
+            condition: day.day.condition.text,
+          }));
+
+        setForecastData(processedForecast);
+      } catch (error) {
+        console.error("Error fetching weather data:", error);
+        // Use mock data if API fetch fails
+        setWeatherData({
+          temp: 28,
+          condition: "Sunny",
+          description: "clear sky",
+          humidity: 65,
+          windSpeed: 3.2,
+          icon: "//cdn.weatherapi.com/weather/64x64/day/113.png",
+          location: farmerLocation || "Your Farm",
+        });
+
+        // Set mock forecast data
+        setForecastData([
+          {
+            day: "Today",
+            high: 33,
+            low: 24,
+            icon: "//cdn.weatherapi.com/weather/64x64/day/113.png",
+            condition: "Sunny",
+          },
+          {
+            day: "Mon",
+            high: 34,
+            low: 25,
+            icon: "//cdn.weatherapi.com/weather/64x64/day/116.png",
+            condition: "Partly cloudy",
+          },
+          {
+            day: "Tue",
+            high: 30,
+            low: 23,
+            icon: "//cdn.weatherapi.com/weather/64x64/day/176.png",
+            condition: "Patchy rain possible",
+          },
+        ]);
+
+        toast.warning("Using demo weather data. API connection issue.", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      } finally {
+        setIsWeatherLoading(false);
+      }
+    };
+
+    fetchWeatherData();
+  }, [farmerLocation]);
+
   const handleNewsClick = (news) => {
     setSelectedNews(news);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -163,7 +237,7 @@ const DashboardContent = ({ events }) => {
         <AgricultureNewsCarousel onNewsClick={handleNewsClick} />
       )}
 
-      {/* Weather Summary Card */}
+      {/* Weather Summary Card - Updated to use real API data */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -179,32 +253,63 @@ const DashboardContent = ({ events }) => {
           </button>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            {weatherSummary.current.icon}
-            <div className="ml-2">
-              <p className="text-sm text-gray-500">{weatherSummary.location}</p>
-              <p className="text-2xl font-bold">
-                {weatherSummary.current.temp}°C
-              </p>
-              <p className="text-sm">{weatherSummary.current.weather}</p>
+        {isWeatherLoading ? (
+          <div className="flex items-center space-x-2 p-4 justify-center">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+            <span className="text-gray-500">Loading weather...</span>
+          </div>
+        ) : weatherData ? (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              {weatherData.icon && (
+                <img
+                  src={weatherData.icon}
+                  alt={weatherData.condition}
+                  className="w-12 h-12 mr-2"
+                />
+              )}
+              <div className="ml-2">
+                <p className="text-sm text-gray-500">{weatherData.location}</p>
+                <p className="text-2xl font-bold">
+                  {Math.round(weatherData.temp)}°C
+                </p>
+                <p className="text-sm capitalize">{weatherData.description}</p>
+                <div className="flex space-x-3 mt-1 text-xs text-gray-500">
+                  <div className="flex items-center">
+                    <FaTint className="mr-1" />
+                    <span>{weatherData.humidity}%</span>
+                  </div>
+                  <div className="flex items-center">
+                    <FaWind className="mr-1" />
+                    <span>{weatherData.windSpeed.toFixed(1)} m/s</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex space-x-4 ml-4">
+              {forecastData.map((day, i) => (
+                <div key={i} className="text-center">
+                  <p className="text-xs text-gray-500">{day.day}</p>
+                  <img
+                    src={day.icon}
+                    alt={day.condition}
+                    className="w-8 h-8 mx-auto"
+                  />
+                  <p className="text-xs">
+                    <span className="text-red-500">{day.high}°</span>
+                    {" / "}
+                    <span className="text-blue-500">{day.low}°</span>
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
-
-          <div className="flex space-x-4 ml-4">
-            {weatherSummary.forecast.map((day, i) => (
-              <div key={i} className="text-center">
-                <p className="text-xs text-gray-500">{day.day}</p>
-                {day.icon}
-                <p className="text-xs">
-                  <span className="text-red-500">{day.high}°</span>
-                  {" / "}
-                  <span className="text-blue-500">{day.low}°</span>
-                </p>
-              </div>
-            ))}
+        ) : (
+          <div className="text-red-500 p-4 text-center">
+            Weather data unavailable
           </div>
-        </div>
+        )}
       </motion.div>
 
       {/* Market Analysis Chart */}

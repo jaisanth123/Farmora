@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import axios from "axios";
 import {
   FaCloudSun,
   FaMapMarkerAlt,
@@ -14,38 +15,43 @@ import {
   FaBolt,
   FaSnowflake,
   FaSmog,
+  FaLeaf,
+  FaBug,
+  FaSeedling,
+  FaWater,
 } from "react-icons/fa";
-import axios from "axios";
+import { format } from "date-fns";
 import ChatbotWrapper from "../dashboard/utils/ChatbotWrapper";
 
 const WeatherForecast = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState("Delhi"); // Set Delhi as default location
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userLocation, setUserLocation] = useState(null);
-  const [searchType, setSearchType] = useState("location"); // "location" or "coordinates"
+  const [searchType, setSearchType] = useState("location");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [error, setError] = useState(null);
+  const [forecastData, setForecastData] = useState([]);
 
   useEffect(() => {
-    // Get user's current location when component mounts
+    // Fetch Delhi weather by default instead of relying on geolocation
+    fetchWeatherByLocation("Erode,India");
+
+    // Still try to get user's location if available
     navigator.geolocation?.getCurrentPosition(
       (position) => {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
         setUserLocation({ lat, lon });
 
-        // Automatically fetch weather based on current location
-        fetchWeatherByCoordinates(lat, lon);
+        // Don't automatically fetch weather based on current location
+        // Just store the coordinates for later use
       },
       (error) => {
         console.log("Geolocation error:", error);
-        setLoading(false);
-        setError(
-          "Unable to get your location. Please enter a location manually."
-        );
+        // No need to set error as we're using Delhi by default
       }
     );
   }, []);
@@ -55,19 +61,25 @@ const WeatherForecast = () => {
     setError(null);
 
     try {
-      const response = await axios.get(
-        `/environmental_conditions?latitude=${lat}&longitude=${lon}`
+      const apiKey = "1172476f50624984850114232250203";
+
+      // Fetch current weather
+      const currentResponse = await axios.get(
+        `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}&aqi=no`
       );
 
-      if (response.data.error) {
-        throw new Error(response.data.error);
-      }
+      // Fetch forecast data (7 days)
+      const forecastResponse = await axios.get(
+        `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${lat},${lon}&days=7&aqi=no`
+      );
 
-      processWeatherData(response.data);
+      processWeatherData(currentResponse.data, forecastResponse.data);
     } catch (error) {
       console.error("Error fetching weather data:", error);
       setError("Failed to fetch weather data. Please try again.");
       setLoading(false);
+      // Use mock data if API fetch fails
+      useMockData();
     }
   };
 
@@ -75,162 +87,266 @@ const WeatherForecast = () => {
     setLoading(true);
     setError(null);
 
-    // First, we need to convert the location name to coordinates
-    // We'll use a mock implementation for demonstration
-    // In a real implementation, you would use a geocoding service or API endpoint
-
     try {
-      // This is a mock implementation - in reality, you would make an API call to a geocoding service
-      // or create a backend endpoint for this purpose
+      const apiKey = "1172476f50624984850114232250203";
 
-      // Simulate a geocoding API call
-      let lat, lon;
+      // Fetch current weather
+      const currentResponse = await axios.get(
+        `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${locationName}&aqi=no`
+      );
 
-      // Mock coordinates for some common cities (for demo purposes)
-      if (locationName.toLowerCase().includes("delhi")) {
-        lat = 28.6139;
-        lon = 77.209;
-      } else if (locationName.toLowerCase().includes("mumbai")) {
-        lat = 19.076;
-        lon = 72.8777;
-      } else if (locationName.toLowerCase().includes("bangalore")) {
-        lat = 12.9716;
-        lon = 77.5946;
-      } else {
-        // For other locations, we could use a random location or return an error
-        // In a real app, you'd use a geocoding service
-        throw new Error(
-          "Location not found. Please try a major city or use coordinates."
-        );
-      }
+      // Fetch forecast data (7 days)
+      const forecastResponse = await axios.get(
+        `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${locationName}&days=7&aqi=no`
+      );
 
-      // Now fetch weather using the coordinates
-      await fetchWeatherByCoordinates(lat, lon);
+      processWeatherData(currentResponse.data, forecastResponse.data);
     } catch (error) {
-      console.error("Error converting location to coordinates:", error);
+      console.error("Error fetching weather data:", error);
       setError(
-        error.message ||
-          "Failed to find location. Please try using coordinates instead."
+        "Failed to fetch weather data. Please try again or use coordinates."
       );
       setLoading(false);
+      // Use mock data if API fetch fails
+      useMockData();
     }
   };
 
-  const processWeatherData = (data) => {
-    // Convert API data to the format our component expects
-    // In this case, we're adapting the simple API response to our more complex UI format
-
-    // Extract temperature, humidity, and rainfall from API response
-    const { temperature, humidity, rainfall } = data;
-
-    // Create a more detailed weather object that our UI can use
-    const processedData = {
-      current: {
-        temp: temperature,
-        feels_like: temperature, // Assuming the API doesn't provide "feels like" data
-        humidity: humidity,
-        wind_speed: 0, // API doesn't provide wind speed in your example
-        weather: getWeatherDescription(temperature, humidity, rainfall),
-        weather_icon: getWeatherIconName(temperature, humidity, rainfall),
-        precipitation: rainfall > 0 ? 100 : 0, // Simple logic for precipitation chance
-        uv_index: 0, // API doesn't provide UV index in your example
+  const useMockData = () => {
+    // Mock current weather data
+    const mockCurrentData = {
+      location: {
+        name: "Delhi", // Changed from Chennai to Delhi
+        country: "India",
       },
-      daily: generateDailyForecast(temperature, humidity, rainfall),
-      hourly: generateHourlyForecast(temperature),
+      current: {
+        temp_c: 32, // Updated temperature for Delhi
+        condition: {
+          text: "Sunny",
+          icon: "//cdn.weatherapi.com/weather/64x64/day/113.png",
+        },
+        humidity: 55, // Updated for Delhi
+        wind_kph: 12.5,
+        precip_mm: 0,
+        feelslike_c: 34, // Updated for Delhi
+      },
+    };
+
+    // Mock forecast data
+    const mockForecastData = {
+      forecast: {
+        forecastday: [
+          {
+            date: new Date().toISOString(),
+            day: {
+              maxtemp_c: 36, // Updated for Delhi
+              mintemp_c: 26, // Updated for Delhi
+              condition: {
+                text: "Sunny",
+                icon: "//cdn.weatherapi.com/weather/64x64/day/113.png",
+              },
+              daily_chance_of_rain: 0,
+              avghumidity: 55, // Updated for Delhi
+            },
+            hour: Array(24)
+              .fill()
+              .map((_, i) => ({
+                time: `${new Date().toISOString().split("T")[0]}T${
+                  i < 10 ? "0" + i : i
+                }:00:00`,
+                temp_c: 32 + Math.sin(i / 3) * 5, // Updated base temp for Delhi
+                condition: {
+                  text: i > 6 && i < 18 ? "Sunny" : "Clear",
+                  icon:
+                    i > 6 && i < 18
+                      ? "//cdn.weatherapi.com/weather/64x64/day/113.png"
+                      : "//cdn.weatherapi.com/weather/64x64/night/113.png",
+                },
+              })),
+          },
+          ...Array(6)
+            .fill()
+            .map((_, i) => ({
+              date: new Date(
+                Date.now() + (i + 1) * 24 * 60 * 60 * 1000
+              ).toISOString(),
+              day: {
+                maxtemp_c: 36 + Math.sin(i) * 3, // Updated for Delhi
+                mintemp_c: 26 + Math.sin(i) * 2, // Updated for Delhi
+                condition: {
+                  text: [
+                    "Sunny",
+                    "Partly cloudy",
+                    "Cloudy",
+                    "Light rain",
+                    "Sunny",
+                    "Partly cloudy",
+                  ][i],
+                  icon: [
+                    `//cdn.weatherapi.com/weather/64x64/day/113.png`,
+                    `//cdn.weatherapi.com/weather/64x64/day/116.png`,
+                    `//cdn.weatherapi.com/weather/64x64/day/119.png`,
+                    `//cdn.weatherapi.com/weather/64x64/day/296.png`,
+                    `//cdn.weatherapi.com/weather/64x64/day/113.png`,
+                    `//cdn.weatherapi.com/weather/64x64/day/116.png`,
+                  ][i],
+                },
+                daily_chance_of_rain: [0, 10, 30, 70, 10, 20][i],
+                avghumidity: 55 + Math.sin(i) * 10, // Updated base humidity for Delhi
+              },
+            })),
+        ],
+      },
+    };
+
+    processWeatherData(mockCurrentData, mockForecastData);
+  };
+
+  const processWeatherData = (currentData, forecastData) => {
+    // Set current weather data
+    const currentWeather = {
+      temp: Math.round(currentData.current.temp_c),
+      condition: currentData.current.condition.text,
+      icon: currentData.current.condition.icon,
+      humidity: currentData.current.humidity,
+      wind_speed: Math.round((currentData.current.wind_kph / 3.6) * 10) / 10, // Convert km/h to m/s with 1 decimal
+      feels_like: Math.round(currentData.current.feelslike_c),
+      precipitation:
+        forecastData.forecast.forecastday[0].day.daily_chance_of_rain || 0,
+      location: `${currentData.location.name}, ${currentData.location.country}`,
+    };
+
+    // Process daily forecast
+    const dailyForecast = forecastData.forecast.forecastday.map((day) => ({
+      day: format(new Date(day.date), "EEE"),
+      temp_max: Math.round(day.day.maxtemp_c),
+      temp_min: Math.round(day.day.mintemp_c),
+      weather: day.day.condition.text,
+      weather_icon: day.day.condition.icon,
+      precipitation: day.day.daily_chance_of_rain,
+      humidity: day.day.avghumidity,
+    }));
+
+    // Process hourly forecast (next 6 intervals)
+    const currentHour = new Date().getHours();
+    const hourlyIntervals = [0, 3, 6, 9, 12, 15];
+    const hourlyForecast = hourlyIntervals.map((interval) => {
+      const hourIndex = Math.floor((currentHour + interval) / 3) % 8;
+      const displayHour = (currentHour + interval) % 24;
+      const timeString =
+        displayHour === currentHour
+          ? "Now"
+          : displayHour === 0
+          ? "12 AM"
+          : displayHour === 12
+          ? "12 PM"
+          : displayHour < 12
+          ? `${displayHour} AM`
+          : `${displayHour - 12} PM`;
+
+      const todayHours = forecastData.forecast.forecastday[0].hour;
+      const hourData = todayHours[(currentHour + interval) % 24];
+
+      return {
+        time: timeString,
+        temp: Math.round(hourData.temp_c),
+        weather_icon: hourData.condition.icon,
+      };
+    });
+
+    // Calculate agricultural metrics based on weather data
+    const soilMoisture = calculateSoilMoisture(
+      currentWeather.precipitation,
+      forecastData
+    );
+    const idealCrops = getIdealCrops(
+      currentWeather.temp,
+      currentWeather.precipitation,
+      forecastData
+    );
+    const irrigationAdvice = getIrrigationAdvice(
+      currentWeather.temp,
+      currentWeather.precipitation,
+      forecastData
+    );
+    const pestRisk = getPestRisk(
+      currentWeather.temp,
+      currentWeather.humidity,
+      forecastData
+    );
+
+    const processedData = {
+      current: currentWeather,
+      daily: dailyForecast,
+      hourly: hourlyForecast,
       agricultural_metrics: {
-        soil_moisture:
-          rainfall > 10 ? "High" : rainfall > 5 ? "Moderate" : "Low",
-        ideal_crops: getIdealCrops(temperature, rainfall),
-        irrigation_advice: getIrrigationAdvice(temperature, rainfall),
-        pest_risk: getPestRisk(temperature, humidity),
+        soil_moisture: soilMoisture,
+        ideal_crops: idealCrops,
+        irrigation_advice: irrigationAdvice,
+        pest_risk: pestRisk,
       },
     };
 
     setWeatherData(processedData);
+    setForecastData(dailyForecast);
     setLoading(false);
   };
 
-  // Helper functions to generate weather descriptions based on available data
-  const getWeatherDescription = (temp, humidity, rainfall) => {
-    if (rainfall > 10) return "Heavy Rain";
-    if (rainfall > 0) return "Light Rain";
-    if (humidity > 80) return "Cloudy";
-    if (temp > 30) return "Hot";
-    if (temp < 10) return "Cold";
-    return "Clear";
-  };
+  // Helper functions for agricultural metrics
+  const calculateSoilMoisture = (precipitation, forecast) => {
+    const nextFewDaysRain =
+      forecast.forecast.forecastday
+        .slice(0, 3)
+        .reduce((sum, day) => sum + day.day.daily_chance_of_rain, 0) / 3;
 
-  const getWeatherIconName = (temp, humidity, rainfall) => {
-    if (rainfall > 10) return "cloud-rain";
-    if (rainfall > 0) return "cloud-rain";
-    if (humidity > 80) return "cloud";
-    if (temp > 30) return "sun";
-    if (temp < 10) return "snow";
-    return "cloud-sun";
-  };
-
-  const getIdealCrops = (temp, rainfall) => {
-    if (temp > 25 && rainfall > 5) return ["Rice", "Sugarcane", "Cotton"];
-    if (temp > 20) return ["Wheat", "Millet", "Corn"];
-    return ["Barley", "Potatoes", "Peas"];
-  };
-
-  const getIrrigationAdvice = (temp, rainfall) => {
-    if (rainfall > 10) return "No irrigation needed due to sufficient rainfall";
-    if (temp > 30)
-      return "Frequent irrigation recommended due to high temperatures";
-    return "Regular irrigation recommended";
-  };
-
-  const getPestRisk = (temp, humidity) => {
-    if (temp > 25 && humidity > 70) return "High";
-    if (temp > 20 && humidity > 60) return "Moderate";
+    if (nextFewDaysRain > 60) return "High";
+    if (nextFewDaysRain > 30) return "Moderate";
     return "Low";
   };
 
-  // Generate mock daily forecast based on current conditions
-  const generateDailyForecast = (temp, humidity, rainfall) => {
-    const days = ["Today", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const forecast = [];
+  const getIdealCrops = (temp, precipitation, forecast) => {
+    const avgTemp =
+      forecast.forecast.forecastday
+        .slice(0, 3)
+        .reduce(
+          (sum, day) => sum + (day.day.maxtemp_c + day.day.mintemp_c) / 2,
+          0
+        ) / 3;
 
-    for (let i = 0; i < 7; i++) {
-      // Simple algorithm to vary the forecast slightly each day
-      const variation = Math.sin(i) * 3;
-      const dayTemp = Math.round(temp + variation);
-      const dayRainfall = Math.max(0, rainfall - i * 0.5);
-      const dayHumidity = Math.max(30, humidity - i * 2);
+    const rainPrediction =
+      forecast.forecast.forecastday
+        .slice(0, 3)
+        .reduce((sum, day) => sum + day.day.daily_chance_of_rain, 0) / 3;
 
-      forecast.push({
-        day: days[i],
-        temp_max: dayTemp + 2,
-        temp_min: dayTemp - 3,
-        weather: getWeatherDescription(dayTemp, dayHumidity, dayRainfall),
-        weather_icon: getWeatherIconName(dayTemp, dayHumidity, dayRainfall),
-        precipitation: dayRainfall > 0 ? Math.round(dayRainfall * 10) : 0,
-      });
-    }
-
-    return forecast;
+    if (avgTemp > 28 && rainPrediction > 50)
+      return ["Rice", "Sugarcane", "Cotton"];
+    if (avgTemp > 20 && avgTemp <= 28) return ["Wheat", "Millet", "Corn"];
+    if (avgTemp <= 20) return ["Barley", "Potatoes", "Peas"];
+    return ["Millet", "Sorghum", "Corn"];
   };
 
-  // Generate mock hourly forecast based on current temperature
-  const generateHourlyForecast = (temp) => {
-    const hours = ["Now", "12 PM", "3 PM", "6 PM", "9 PM", "12 AM"];
-    const forecast = [];
+  const getIrrigationAdvice = (temp, precipitation, forecast) => {
+    const rainPrediction =
+      forecast.forecast.forecastday
+        .slice(0, 3)
+        .reduce((sum, day) => sum + day.day.daily_chance_of_rain, 0) / 3;
 
-    for (let i = 0; i < hours.length; i++) {
-      const hourVariation = Math.cos(i) * 2;
-      const hourTemp = Math.round(temp + hourVariation);
-      const icon = i < 3 ? "sun" : i < 5 ? "cloud-sun" : "cloud";
+    if (rainPrediction > 60)
+      return "No irrigation needed due to sufficient rainfall forecast";
+    if (temp > 30)
+      return "Frequent irrigation recommended due to high temperatures";
+    return "Regular irrigation recommended based on soil moisture levels";
+  };
 
-      forecast.push({
-        time: hours[i],
-        temp: hourTemp,
-        weather_icon: icon,
-      });
-    }
+  const getPestRisk = (temp, humidity, forecast) => {
+    const avgHumidity =
+      forecast.forecast.forecastday
+        .slice(0, 3)
+        .reduce((sum, day) => sum + day.day.avghumidity, 0) / 3;
 
-    return forecast;
+    if (temp > 28 && avgHumidity > 70) return "High";
+    if (temp > 25 && avgHumidity > 60) return "Moderate";
+    return "Low";
   };
 
   const handleLocationChange = (e) => {
@@ -283,7 +399,16 @@ const WeatherForecast = () => {
   };
 
   // Function to get the appropriate weather icon
-  const getWeatherIcon = (iconName, size = 24) => {
+  const getWeatherIcon = (iconUrl, size = 24) => {
+    if (iconUrl) {
+      return (
+        <img src={iconUrl} alt="Weather icon" width={size} height={size} />
+      );
+    }
+
+    // Fallback icons if URL is not available
+    const iconName = iconUrl || "default";
+
     switch (iconName) {
       case "sun":
         return <FaSun size={size} className="text-yellow-500" />;
@@ -303,9 +428,11 @@ const WeatherForecast = () => {
         return <FaCloudSun size={size} className="text-blue-400" />;
     }
   };
+
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen);
   };
+
   // Function to get color for precipitation chances
   const getPrecipitationColor = (chance) => {
     if (chance <= 20) return "text-green-500";
@@ -429,23 +556,28 @@ const WeatherForecast = () => {
         {weatherData && (
           <>
             {/* Current weather card */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
-              <div className="bg-gradient-to-r bg-black text-white p-4">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="bg-white rounded-lg shadow-md overflow-hidden mb-6"
+            >
+              <div className="bg-gradient-to-r from-blue-600 to-blue-400 text-white p-6">
                 <div className="flex justify-between items-center">
                   <div>
                     <h2 className="text-xl font-semibold">
-                      {location || (userLocation ? "Your Location" : "Weather")}
+                      {weatherData.current.location}
                     </h2>
-                    <p className="text-sm opacity-90">Current Weather</p>
+                    <p className="text-sm opacity-90">Today's Weather</p>
                   </div>
                   <div className="text-right">
                     <div className="flex items-center justify-end">
-                      {getWeatherIcon(weatherData.current.weather_icon, 32)}
-                      <span className="text-3xl ml-2">
+                      {getWeatherIcon(weatherData.current.icon, 48)}
+                      <span className="text-4xl ml-3 font-bold">
                         {weatherData.current.temp}°C
                       </span>
                     </div>
-                    <p>{weatherData.current.weather}</p>
+                    <p className="mt-1">{weatherData.current.condition}</p>
                   </div>
                 </div>
               </div>
@@ -453,85 +585,105 @@ const WeatherForecast = () => {
               <div className="p-4">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="flex items-center">
-                    <FaTemperatureHigh className="text-red-500 mr-2" />
+                    <FaTemperatureHigh className="text-red-500 mr-2 text-lg" />
                     <div>
                       <p className="text-sm text-gray-500">Feels Like</p>
-                      <p className="font-medium">
+                      <p className="font-medium text-lg">
                         {weatherData.current.feels_like}°C
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <FaTint className="text-blue-300 mr-2" />
+                    <FaTint className="text-blue-500 mr-2 text-lg" />
                     <div>
                       <p className="text-sm text-gray-500">Humidity</p>
-                      <p className="font-medium">
+                      <p className="font-medium text-lg">
                         {weatherData.current.humidity}%
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <FaWind className="text-blue-300 mr-2" />
+                    <FaWind className="text-blue-400 mr-2 text-lg" />
                     <div>
                       <p className="text-sm text-gray-500">Wind</p>
-                      <p className="font-medium">
-                        {weatherData.current.wind_speed} km/h
+                      <p className="font-medium text-lg">
+                        {weatherData.current.wind_speed} m/s
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <FaUmbrella className="text-blue-700 mr-2" />
+                    <FaUmbrella className="text-blue-700 mr-2 text-lg" />
                     <div>
-                      <p className="text-sm text-gray-500">Precipitation</p>
-                      <p className="font-medium">
+                      <p className="text-sm text-gray-500">Chance of Rain</p>
+                      <p
+                        className={`font-medium text-lg ${getPrecipitationColor(
+                          weatherData.current.precipitation
+                        )}`}
+                      >
                         {weatherData.current.precipitation}%
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Hourly forecast */}
-            <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-              <h3 className="text-lg font-medium mb-3">Hourly Forecast</h3>
-              <div className="flex overflow-x-auto pb-2 space-x-4">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="bg-white rounded-lg shadow-md p-4 mb-6"
+            >
+              <h3 className="text-lg font-medium mb-3 text-gray-800">
+                Hourly Forecast
+              </h3>
+              <div className="flex overflow-x-auto pb-2 space-x-8">
                 {weatherData.hourly.map((hour, index) => (
                   <div
                     key={index}
                     className="flex flex-col items-center min-w-[60px]"
                   >
-                    <p className="text-sm text-gray-500">{hour.time}</p>
-                    {getWeatherIcon(hour.weather_icon)}
-                    <p className="font-medium">{hour.temp}°C</p>
+                    <p className="text-sm text-gray-600 mb-1">{hour.time}</p>
+                    {getWeatherIcon(hour.weather_icon, 36)}
+                    <p className="font-medium mt-1 text-lg">{hour.temp}°C</p>
                   </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
             {/* 7-day forecast */}
-            <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-              <h3 className="text-lg font-medium mb-3">7-Day Forecast</h3>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+              className="bg-white rounded-lg shadow-md p-4 mb-6"
+            >
+              <h3 className="text-lg font-medium mb-3 text-gray-800">
+                7-Day Forecast
+              </h3>
               <div className="space-y-3">
                 {weatherData.daily.map((day, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors"
+                    className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors"
                   >
                     <div className="w-20">
                       <p
                         className={
-                          index === 0 ? "font-medium" : "text-gray-500"
+                          index === 0
+                            ? "font-semibold text-gray-800"
+                            : "text-gray-600"
                         }
                       >
                         {day.day}
                       </p>
                     </div>
                     <div className="flex items-center w-14">
-                      {getWeatherIcon(day.weather_icon)}
+                      {getWeatherIcon(day.weather_icon, 30)}
                     </div>
                     <div className="w-32">
-                      <p className="text-sm">{day.weather}</p>
+                      <p className="text-sm text-gray-800">{day.weather}</p>
                     </div>
                     <div className="w-24 text-center">
                       <p
@@ -544,44 +696,75 @@ const WeatherForecast = () => {
                       </p>
                     </div>
                     <div className="flex items-center justify-end space-x-2 w-24">
-                      <span className="text-red-500">{day.temp_max}°</span>
-                      <span className="text-blue-500">{day.temp_min}°</span>
+                      <span className="text-red-500 font-medium">
+                        {day.temp_max}°
+                      </span>
+                      <span className="text-blue-500 font-medium">
+                        {day.temp_min}°
+                      </span>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
             {/* Agricultural impacts section */}
-            <div className="bg-white rounded-lg shadow-md p-4">
-              <h3 className="text-lg font-medium mb-3">Agricultural Impacts</h3>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.3 }}
+              className="bg-white rounded-lg shadow-md p-5"
+            >
+              <h3 className="text-lg font-medium mb-4 text-gray-800">
+                Agricultural Impacts
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="border border-gray-200 rounded-lg p-3">
-                  <h4 className="font-medium text-green-700 mb-2">
-                    Soil Moisture
+                <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <h4 className="font-medium text-green-700 mb-2 flex items-center">
+                    <FaWater className="mr-2" /> Soil Moisture
                   </h4>
-                  <p>{weatherData.agricultural_metrics.soil_moisture}</p>
-                </div>
-                <div className="border border-gray-200 rounded-lg p-3">
-                  <h4 className="font-medium text-green-700 mb-2">
-                    Irrigation Advice
-                  </h4>
-                  <p>{weatherData.agricultural_metrics.irrigation_advice}</p>
-                </div>
-                <div className="border border-gray-200 rounded-lg p-3">
-                  <h4 className="font-medium text-green-700 mb-2">
-                    Recommended Crops
-                  </h4>
-                  <p>
-                    {weatherData.agricultural_metrics.ideal_crops.join(", ")}
+                  <p className="text-gray-700">
+                    {weatherData.agricultural_metrics.soil_moisture}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Based on recent rainfall and forecast
                   </p>
                 </div>
-                <div className="border border-gray-200 rounded-lg p-3">
-                  <h4 className="font-medium text-green-700 mb-2">Pest Risk</h4>
-                  <p>{weatherData.agricultural_metrics.pest_risk}</p>
+                <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <h4 className="font-medium text-green-700 mb-2 flex items-center">
+                    <FaLeaf className="mr-2" /> Irrigation Advice
+                  </h4>
+                  <p className="text-gray-700">
+                    {weatherData.agricultural_metrics.irrigation_advice}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Consider adjusting based on crop type
+                  </p>
+                </div>
+                <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <h4 className="font-medium text-green-700 mb-2 flex items-center">
+                    <FaSeedling className="mr-2" /> Recommended Crops
+                  </h4>
+                  <p className="text-gray-700">
+                    {weatherData.agricultural_metrics.ideal_crops.join(", ")}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Based on current weather patterns
+                  </p>
+                </div>
+                <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <h4 className="font-medium text-green-700 mb-2 flex items-center">
+                    <FaBug className="mr-2" /> Pest Risk
+                  </h4>
+                  <p className="text-gray-700">
+                    {weatherData.agricultural_metrics.pest_risk}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Monitor fields regularly in current conditions
+                  </p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </>
         )}
       </motion.div>

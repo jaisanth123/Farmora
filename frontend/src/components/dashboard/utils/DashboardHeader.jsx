@@ -1,4 +1,3 @@
-// src/components/dashboard/DashboardHeader.jsx
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
@@ -11,27 +10,34 @@ const DashboardHeader = ({
   isWeatherLoading,
   setIsWeatherLoading,
   showWelcome,
+  farmerLocation, // Add new prop for farmer location
 }) => {
   // Fetch weather data
   useEffect(() => {
     const fetchWeatherData = async () => {
       setIsWeatherLoading(true);
       try {
-        const apiKey = import.meta.env.VITE_WEATHER_API;
-        const location = "Delhi,in"; // Example: Delhi, India
+        const apiKey =
+          "1172476f50624984850114232250203" || process.env.VITE_WEATHER_API;
+
+        // Use farmer location from props, or default to Delhi,India
+        const location = farmerLocation || "Erode,India";
 
         const response = await axios.get(
-          `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=${apiKey}`
+          `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=no`
         );
 
+        // Log full response for debugging
+        console.log("Weather API Response:", response.data);
+
         setWeatherData({
-          temp: response.data.main.temp,
-          condition: response.data.weather[0].main,
-          description: response.data.weather[0].description,
-          humidity: response.data.main.humidity,
-          windSpeed: response.data.wind.speed,
-          icon: `http://openweathermap.org/img/wn/${response.data.weather[0].icon}@2x.png`,
-          location: response.data.name,
+          temp: response.data.current.temp_c,
+          condition: response.data.current.condition.text,
+          description: response.data.current.condition.text.toLowerCase(),
+          humidity: response.data.current.humidity,
+          windSpeed: response.data.current.wind_kph / 3.6, // Convert km/h to m/s
+          icon: response.data.current.condition.icon,
+          location: `${response.data.location.name}, ${response.data.location.country}`,
         });
       } catch (error) {
         console.error("Error fetching weather data:", error);
@@ -42,12 +48,12 @@ const DashboardHeader = ({
           description: "clear sky",
           humidity: 65,
           windSpeed: 3.2,
-          icon: "http://openweathermap.org/img/wn/01d@2x.png",
-          location: "Your Farm",
+          icon: "//cdn.weatherapi.com/weather/64x64/day/113.png",
+          location: farmerLocation || "Your Farm",
         });
 
         if (showWelcome) {
-          toast.warning("Using demo weather data. API key may be missing.", {
+          toast.warning("Using demo weather data. API connection issue.", {
             position: "top-right",
             autoClose: 3000,
           });
@@ -58,7 +64,7 @@ const DashboardHeader = ({
     };
 
     fetchWeatherData();
-  }, [setWeatherData, setIsWeatherLoading, showWelcome]);
+  }, [setWeatherData, setIsWeatherLoading, showWelcome, farmerLocation]); // Add farmerLocation to dependency array
 
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
@@ -112,7 +118,7 @@ const DashboardHeader = ({
                   </div>
                   <div className="flex items-center">
                     <FaWind className="mr-1" />
-                    <span>{weatherData.windSpeed} m/s</span>
+                    <span>{weatherData.windSpeed.toFixed(3)} m/s</span>
                   </div>
                 </div>
               </div>
