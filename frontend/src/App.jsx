@@ -18,6 +18,9 @@ import PlantDiseaseUploader from "./components/PlantDisease/PlantDiseaseUploader
 import PlantDiseasePredictor from "./components/PlantDisease/PlantDiseasePredictor";
 import FarmerProfile from "./components/utils/FarmerProfile";
 import DiagnosisHomePage from "./components/PlantDisease/DiagnosisHomePage.jsx";
+import DemandCrop from "./components/CropRecommend/DemandCrop.jsx";
+import SeasonalPredict from "./components/CropRecommend/SeasonalPredict.jsx";
+import Recommendation from "./components/CropRecommend/Recommendation.jsx";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -104,15 +107,14 @@ function App() {
               <Route path="/weather" element={<WeatherForecast />} />
               <Route path="/form" element={<FarmerRegistrationForm />} />
               <Route path="/market-analysis" element={<MarketAnalysisPage />} />
-              <Route
-                path="/crop-recommendation"
-                element={<CropRecommendationForm />}
-              />
+              <Route path="/soil-nature" element={<CropRecommendationForm />} />
               <Route path="/profile" element={<FarmerProfile />} />
+              <Route path="/seasonal" element={<SeasonalPredict />} />
+              <Route path="/demand" element={<DemandCrop />} />
+              <Route path="/crop-recommendation" element={<Recommendation />} />
               <Route
                 path="/disease-diagnosis"
                 element={<PlantDiseasePredictor />}
-                //    element={<PlantDiseaseUploader />}
               />
               <Route path="/disease-pest" element={<PlantDiseaseUploader />} />
               <Route path="/disease" element={<DiagnosisHomePage />} />

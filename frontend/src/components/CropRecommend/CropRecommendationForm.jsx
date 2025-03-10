@@ -268,7 +268,7 @@ function CropRecommendationForm() {
     if (!recommendations.length) return;
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-    const fileName = `crop-recommendations-${timestamp}.json`;
+    const fileName = `soil-natures-${timestamp}.json`;
 
     const data = {
       generated: new Date().toISOString(),

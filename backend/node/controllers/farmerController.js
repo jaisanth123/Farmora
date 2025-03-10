@@ -8,8 +8,11 @@ export const getFarmerData = async (req, res) => {
     console.log("farmer")
     const farmer = await Farmer.findOne({ userId: userId });
     if (!farmer) {
+      console.error("Farmer not found");
       return res.status(404).json({ message: 'Farmer not found' });
+      
     }
+    console.log("farmer data:", farmer) // Debug log
     res.status(200).json(farmer);
   } catch (error) {
     console.error('Error fetching farmer data:', error);
