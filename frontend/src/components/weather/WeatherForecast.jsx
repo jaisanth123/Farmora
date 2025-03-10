@@ -16,8 +16,10 @@ import {
   FaSmog,
 } from "react-icons/fa";
 import axios from "axios";
+import ChatbotWrapper from "../dashboard/utils/ChatbotWrapper";
 
 const WeatherForecast = () => {
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [location, setLocation] = useState("");
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -301,7 +303,9 @@ const WeatherForecast = () => {
         return <FaCloudSun size={size} className="text-blue-400" />;
     }
   };
-
+  const toggleChat = () => {
+    setIsChatOpen(!isChatOpen);
+  };
   // Function to get color for precipitation chances
   const getPrecipitationColor = (chance) => {
     if (chance <= 20) return "text-green-500";
@@ -581,6 +585,11 @@ const WeatherForecast = () => {
           </>
         )}
       </motion.div>
+      <ChatbotWrapper
+        isChatOpen={isChatOpen}
+        toggleChat={toggleChat}
+        setIsChatOpen={setIsChatOpen}
+      />
     </div>
   );
 };

@@ -1,19 +1,20 @@
+import React, { useState, useRef, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { useState, useRef, useEffect } from "react";
+import { AuthProvider } from "./context/AuthContext";
+
 import Login from "./components/firebase/Login";
 import Register from "./components/firebase/Register";
 import Dashboard from "./components/dashboard/Dashboard";
 import Sidebar from "./components/utils/Sidebar";
 import Navbar from "./components/utils/Navbar";
 import ChatbotDialog from "./components/chatbot/ChatbotDialog";
-import { AuthProvider } from './context/AuthContext';
 import ForumPage from "./components/forum/ForumPage";
 import WeatherForecast from "./components/weather/WeatherForecast";
 import FarmerRegistrationForm from "./components/utils/FarmerRegistrationForm";
 import CropRecommendationForm from "./components/CropRecommend/CropRecommendationForm";
 import MarketAnalysisPage from "./components/market_Analysis/MarketAnalysisPage";
 import PlantDiseaseUploader from "./components/PlantDisease/PlantDiseaseUploader";
-import FarmerProfile from './components/utils/FarmerProfile';
+import FarmerProfile from "./components/utils/FarmerProfile";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -69,38 +70,41 @@ function App() {
 
   return (
     <AuthProvider>
-    <Router>
-      <div className="flex flex-col min-h-screen m-0 p-0 overflow-x-hidden">
-        <Navbar
-          toggleSidebar={toggleSidebar}
-          isSidebarOpen={isSidebarOpen}
-          toggleChat={toggleChat}
-          isChatOpen={isChatOpen}
-        />
+      <Router>
+        <div className="flex flex-col min-h-screen m-0 p-0 overflow-x-hidden">
+          {/* Navbar with toggle buttons */}
+          <Navbar
+            toggleSidebar={toggleSidebar}
+            isSidebarOpen={isSidebarOpen}
+            toggleChat={toggleChat}
+            isChatOpen={isChatOpen}
+          />
 
-          <div className="hidden">
-            <div ref={sidebarRef}></div>
-          </div>
-
+          {/* Sidebar (Visible on all pages) */}
           <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
 
+          {/* Chatbot (Visible on all pages) */}
           {isChatOpen && (
             <div ref={chatbotRef}>
               <ChatbotDialog closeChat={closeChat} />
             </div>
           )}
 
-          <main className="flex-grow  pt-20 px-4">
+          {/* Main Content Area */}
+          <main className="flex-grow pt-20 px-4">
             <Routes>
-              <Route path="/forum" element={<ForumPage />} />
               <Route path="/" element={<Register />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/forum" element={<ForumPage />} />
               <Route path="/weather" element={<WeatherForecast />} />
               <Route path="/form" element={<FarmerRegistrationForm />} />
-              <Route path="/market-analysis" element={<MarketAnalysisPage />} />\
-              <Route path="/crop-recommendation" element={<CropRecommendationForm/>}/>
+              <Route path="/market-analysis" element={<MarketAnalysisPage />} />
+              <Route
+                path="/crop-recommendation"
+                element={<CropRecommendationForm />}
+              />
               <Route path="/profile" element={<FarmerProfile />} />
               <Route
                 path="/disease-diagnosis"
@@ -109,26 +113,7 @@ function App() {
             </Routes>
           </main>
         </div>
-
-        <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
-
-        {isChatOpen && (
-          <div ref={chatbotRef}>
-            <ChatbotDialog closeChat={closeChat} />
-          </div>
-        )}
-
-        {/* <main className="flex-grow pt-20 px-4">
-          <Routes>
-            <Route path="/" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/form" element={<FarmerRegistrationForm />} />
-          </Routes>
-        </main>
-      </div> */}
-    </Router>
+      </Router>
     </AuthProvider>
   );
 }

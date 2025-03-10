@@ -125,7 +125,7 @@ const ChatbotDialog = ({ closeChat }) => {
   const toggleVoiceMode = () => {
     setIsVoiceMode(!isVoiceMode);
     stopListening();
-    setIsSpeaking(false);
+    setIsSpeaking(false); 
   };
 
   // Clean up on unmount

@@ -3,6 +3,8 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ChatbotWrapper from "../dashboard/utils/ChatbotWrapper";
+
 import {
   FaSeedling,
   FaCloudRain,
@@ -36,6 +38,7 @@ function CropRecommendationForm() {
     humidity: 0,
     rainfall: 0,
   });
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [recommendations, setRecommendations] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -43,6 +46,10 @@ function CropRecommendationForm() {
   const [showHistory, setShowHistory] = useState(false);
   const [tooltips, setTooltips] = useState({});
   const navigate = useNavigate();
+
+  const toggleChat = () => {
+    setIsChatOpen(!isChatOpen);
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -402,7 +409,6 @@ function CropRecommendationForm() {
           opacity: 1;
         }
       `}</style>
-
       <div className="max-w-5xl mx-auto p-6 bg-white rounded-lg shadow-xl border border-green-200">
         <div className="mb-8 text-center">
           <div className="flex justify-center items-center">
@@ -949,7 +955,6 @@ function CropRecommendationForm() {
           </div>
         </div>
       </div>
-
       <ToastContainer
         position="bottom-right"
         autoClose={5000}
@@ -962,6 +967,12 @@ function CropRecommendationForm() {
         pauseOnHover
         theme="colored"
       />
+      <ChatbotWrapper
+        isChatOpen={isChatOpen}
+        toggleChat={toggleChat}
+        setIsChatOpen={setIsChatOpen}
+      />
+      ;
     </div>
   );
 }

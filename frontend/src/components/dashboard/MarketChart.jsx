@@ -306,13 +306,8 @@ const MarketChart = () => {
         );
     }
   };
-
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="bg-white border border-gray-200 rounded-lg shadow-sm p-5"
-    >
+    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-black">
           Market Prices Analysis
@@ -348,7 +343,6 @@ const MarketChart = () => {
         </div>
       </div>
 
-      {/* Market Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
         <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
           <p className="text-gray-500 text-xs">Current Price</p>
@@ -370,44 +364,17 @@ const MarketChart = () => {
         </div>
       </div>
 
-      <motion.div
-        className="h-64"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        key={selectedCrop + timeRange + chartType} // Re-animate when data changes
-      >
+      <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           {renderChart()}
         </ResponsiveContainer>
-      </motion.div>
+      </div>
 
-      <motion.div
-        className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-      >
+      <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
         <p className="font-medium text-gray-700">Market Insights:</p>
-        <ul className="mt-2 space-y-1 text-sm text-gray-700">
-          <li>
-            • {selectedCrop.charAt(0).toUpperCase() + selectedCrop.slice(1)}{" "}
-            prices show a {trend} trend over the last month.
-          </li>
-          <li>
-            • Current price is {aboveAverage}% above the regional average.
-          </li>
-          <li>
-            • Based on the trend, the best time to sell would be within the next
-            7-14 days.
-          </li>
-          <li>
-            • Expected price range for next week: ₹{lastPrice} - ₹
-            {Math.round(lastPrice * 1.05)}
-          </li>
-        </ul>
-      </motion.div>
-    </motion.div>
+        {/* Add insights or additional content here */}
+      </div>
+    </div>
   );
 };
 

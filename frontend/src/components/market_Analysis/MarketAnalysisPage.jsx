@@ -16,6 +16,7 @@ import CommodityPriceTable from "./CommodityPriceTable";
 import MarketNewsCard from "./MarketNewsCard";
 import PriceAlertModal from "./PriceAlertModal";
 import SelectableCropList from "./SelectableCropList";
+import ChatbotWrapper from "../dashboard/utils/ChatbotWrapper";
 
 const MarketAnalysisPage = () => {
   // State management
@@ -23,6 +24,7 @@ const MarketAnalysisPage = () => {
     "Rice",
     "Wheat",
   ]);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedMarket, setSelectedMarket] = useState("Delhi");
   const [timeRange, setTimeRange] = useState("1M"); // 1W, 1M, 3M, 6M, 1Y
   const [loading, setLoading] = useState(true);
@@ -210,6 +212,10 @@ const MarketAnalysisPage = () => {
         impact: "positive",
       },
     ];
+  };
+
+  const toggleChat = () => {
+    setIsChatOpen(!isChatOpen);
   };
 
   const generatePriceForecast = () => {
@@ -553,6 +559,11 @@ const MarketAnalysisPage = () => {
           commodities={marketData?.commodities || []}
         />
       )}
+      <ChatbotWrapper
+        isChatOpen={isChatOpen}
+        toggleChat={toggleChat}
+        setIsChatOpen={setIsChatOpen}
+      />
     </div>
   );
 };
