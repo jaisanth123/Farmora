@@ -1,1 +1,2 @@
-export { default as FarmerRegistrationForm } from './FarmerRegistrationForm';
+
+export { default as FarmerRegistrationForm } from "./FarmerRegistrationForm";

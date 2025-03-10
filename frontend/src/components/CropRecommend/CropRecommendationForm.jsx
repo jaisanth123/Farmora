@@ -79,9 +79,9 @@ function CropRecommendationForm() {
         const data = await response.json();
 
         setFormData({
-          N: data.landInfo?.soilProperties?.nitrogen || 0,
-          P: data.landInfo?.soilProperties?.phosphorous || 0,
-          K: data.landInfo?.soilProperties?.potassium || 0,
+          N: data.landInfo?.soilProperties.nitrogen || 0,
+          P: data.landInfo?.soilProperties.phosphorous || 0,
+          K: data.landInfo?.soilProperties.potassium || 0,
           temperature: data.landInfo?.environmentalConditions?.temperature || 0,
           humidity: data.landInfo?.environmentalConditions?.humidity || 0,
           rainfall: data.landInfo?.environmentalConditions?.rainfall || 0,

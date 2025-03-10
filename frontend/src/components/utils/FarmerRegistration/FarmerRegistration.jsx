@@ -111,9 +111,9 @@ const FarmerRegistrationForm = () => {
         ...landInfo,
         soilProperties: {
           ...landInfo.soilProperties,
-          nitrogen: parseFloat(landInfo.soilProperties.nitrogen) || 0,
-          phosphorous: parseFloat(landInfo.soilProperties.phosphorous) || 0,
-          potassium: parseFloat(landInfo.soilProperties.potassium) || 0,
+          nitrogen: parseFloat(landInfo.soilProperties.N) || 0,
+          phosphorous: parseFloat(landInfo.soilProperties.P) || 0,
+          potassium: parseFloat(landInfo.soilProperties.K) || 0,
           pH: parseFloat(landInfo.soilProperties.pH) || 0,
         },
         environmentalConditions: {
@@ -126,6 +126,7 @@ const FarmerRegistrationForm = () => {
     };
 
     try {
+      console.log("----------------", farmerData);
       await axios.post(
         "http://localhost:5000/api/farmer/register",
         farmerData,

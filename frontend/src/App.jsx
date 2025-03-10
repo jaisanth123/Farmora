@@ -17,6 +17,7 @@ import MarketAnalysisPage from "./components/market_Analysis/MarketAnalysisPage"
 import PlantDiseaseUploader from "./components/PlantDisease/PlantDiseaseUploader";
 import PlantDiseasePredictor from "./components/PlantDisease/PlantDiseasePredictor";
 import FarmerProfile from "./components/utils/FarmerProfile";
+import DiagnosisHomePage from "./components/PlantDisease/DiagnosisHomePage.jsx";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -113,6 +114,8 @@ function App() {
                 element={<PlantDiseasePredictor />}
                 //    element={<PlantDiseaseUploader />}
               />
+              <Route path="/disease-pest" element={<PlantDiseaseUploader />} />
+              <Route path="/disease" element={<DiagnosisHomePage />} />
             </Routes>
           </main>
         </div>

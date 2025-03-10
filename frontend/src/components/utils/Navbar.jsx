@@ -96,7 +96,7 @@ const NavBar = ({ toggleSidebar }) => {
                   <span>Crop Recommendation</span>
                 </Link>
                 <Link
-                  to="/disease-diagnosis"
+                  to="/disease"
                   className="block px-4 py-2 text-gray-800 hover:bg-green-100 transition flex items-center"
                   onClick={() => setShowDropdown(false)}
                 >

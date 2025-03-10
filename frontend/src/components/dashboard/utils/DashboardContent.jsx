@@ -43,7 +43,7 @@ const DashboardContent = ({ events, farmerLocation }) => {
       title: "Disease Diagnosis",
       description: "Identify plant diseases with AI",
       icon: <FaDisease size={24} />,
-      path: "/disease-diagnosis",
+      path: "/disease",
       color: "border-red-500 hover:shadow-red-100",
       delay: 0.2,
     },

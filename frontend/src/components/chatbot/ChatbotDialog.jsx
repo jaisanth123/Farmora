@@ -1,87 +1,41 @@
 import React, { useState, useEffect, useRef } from "react";
+import { FaTimes } from "react-icons/fa";
 import { GiFarmer } from "react-icons/gi";
-import { FaMicrophone, FaComment, FaTimes } from "react-icons/fa";
 import ChatInterface from "./utils/ChatInterface";
 import VoiceInterface from "./utils/VoiceInterface";
-import Header from "./utils/Header";
+import axios from "axios";
+import { v4 as uuidv4 } from "uuid";
 
 const ChatbotDialog = ({ closeChat }) => {
+  const [userId, setUserId] = useState("");
   const [messages, setMessages] = useState([
     {
       id: 1,
       text: "Hello! How can I help you with your farming questions today?",
       sender: "bot",
+      type: "message",
     },
   ]);
   const [isVoiceMode, setIsVoiceMode] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [audioLevel, setAudioLevel] = useState(0);
-  const animationFrameRef = useRef(null);
+  const [isTamil, setIsTamil] = useState(false);
+  const [isSpeak, setIsSpeak] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const messageEndRef = useRef(null);
 
-  // Speech recognition simulation
-  const toggleListening = () => {
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
+  // Initialize user ID
+  useEffect(() => {
+    const generatedUserId = uuidv4();
+    setUserId(generatedUserId);
+  }, []);
+
+  // Scroll to bottom when messages update
+  useEffect(() => {
+    if (messageEndRef.current) {
+      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  };
+  }, [messages]);
 
-  const startListening = () => {
-    setIsListening(true);
-    // Simulate audio levels for visualization
-    simulateAudioLevels();
-
-    // Simulate recognition after random time
-    const recognitionDelay = Math.floor(Math.random() * 2000) + 1000;
-    setTimeout(() => {
-      const randomQuestions = [
-        "What crops are best for sandy soil?",
-        "When should I plant tomatoes?",
-        "How do I control aphids on my vegetables?",
-        "What's the weather forecast for next week?",
-      ];
-      const recognizedText =
-        randomQuestions[Math.floor(Math.random() * randomQuestions.length)];
-      handleSpeechResult(recognizedText);
-    }, recognitionDelay);
-  };
-
-  const stopListening = () => {
-    setIsListening(false);
-    // In a real implementation, you would stop speech recognition here
-    // SpeechRecognition.stopListening();
-
-    // Stop audio level simulation
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-    }
-    setAudioLevel(0);
-  };
-
-  const handleSpeechResult = (text) => {
-    if (!text.trim()) return;
-
-    stopListening();
-
-    // Add user message
-    handleSend(text);
-  };
-
-  const simulateAudioLevels = () => {
-    const updateAudioLevel = () => {
-      // Generate a random audio level that fluctuates naturally
-      const newLevel = Math.min(0.2 + Math.random() * 0.8, 1);
-      setAudioLevel(newLevel);
-
-      animationFrameRef.current = requestAnimationFrame(updateAudioLevel);
-    };
-
-    updateAudioLevel();
-  };
-
-  const handleSend = (message) => {
+  const sendMessage = async (message) => {
     if (!message.trim()) return;
 
     // Add user message
@@ -89,73 +43,128 @@ const ChatbotDialog = ({ closeChat }) => {
       id: messages.length + 1,
       text: message,
       sender: "user",
+      type: "message",
     };
-    setMessages([...messages, newUserMessage]);
 
-    // Simulate bot response and speaking
-    setIsSpeaking(true);
+    // Add loading message
+    const loadingMessage = {
+      id: messages.length + 2,
+      text: "Loading",
+      sender: "bot",
+      type: "loading",
+    };
 
-    setTimeout(() => {
-      const responses = [
-        `Based on your soil type, I'd recommend growing carrots, radishes, or potatoes in sandy soil.`,
-        `For tomatoes, it's best to plant them after all danger of frost has passed, typically in late spring.`,
-        `To control aphids naturally, try spraying plants with a mixture of water and mild dish soap, or introduce ladybugs as a natural predator.`,
-        `The forecast shows sunny conditions with occasional showers, perfect for your crops.`,
-      ];
+    setMessages((prev) => [...prev, newUserMessage, loadingMessage]);
 
-      const botResponse = {
-        id: messages.length + 2,
-        text: responses[Math.floor(Math.random() * responses.length)],
-        sender: "bot",
-      };
+    try {
+      setLoading(true);
 
-      setMessages((prev) => [...prev, botResponse]);
-
-      // Simulate the time it takes to speak the response
-      const speakingTime = Math.min(
-        Math.max(botResponse.text.length * 50, 1500),
-        4000
+      const response = await axios.post(
+        `${
+          import.meta.env.VITE_BACKEND_URL || process.env.REACT_APP_BACKEND_URL
+        }/chatbot`,
+        {
+          message: message,
+          user_id: userId,
+          prompt: "agri", // Using 'agri' as default prompt as in your reference code
+        }
       );
-      setTimeout(() => {
-        setIsSpeaking(false);
-      }, speakingTime);
-    }, 1000);
+
+      if (response.status === 200) {
+        // Format the response to match our message structure
+        const botResponse = {
+          id: messages.length + 3,
+          text: response.data.message,
+          sender: "bot",
+          type: response.data.type || "message",
+          ...(response.data.pdf && { pdf: response.data.pdf }),
+        };
+
+        // Replace loading message with actual response
+        setMessages((prev) => [
+          ...prev.filter((msg) => msg.type !== "loading"),
+          botResponse,
+        ]);
+      } else {
+        setMessages((prev) => [
+          ...prev.filter((msg) => msg.type !== "loading"),
+          {
+            id: messages.length + 3,
+            text: "Some Error has occurred",
+            sender: "bot",
+            type: "message",
+          },
+        ]);
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      setMessages((prev) => [
+        ...prev.filter((msg) => msg.type !== "loading"),
+        {
+          id: messages.length + 3,
+          text: "Some Error has occurred",
+          sender: "bot",
+          type: "message",
+        },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const toggleVoiceMode = () => {
     setIsVoiceMode(!isVoiceMode);
-    stopListening();
-    setIsSpeaking(false); 
   };
-
-  // Clean up on unmount
-  useEffect(() => {
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, []);
 
   return (
     <div className="fixed bottom-24 right-6 w-96 h-140 bg-white rounded-lg shadow-xl z-50 flex flex-col overflow-hidden border border-gray-200">
-      <Header
-        closeChat={closeChat}
-        isVoiceMode={isVoiceMode}
-        toggleVoiceMode={toggleVoiceMode}
-      />
+      {/* Header */}
+      <div className="flex justify-between items-center p-4 bg-gray-800 text-white">
+        <div className="flex items-center">
+          <GiFarmer className="text-2xl mr-2" />
+          <h2 className="text-lg font-medium">Farmer Helper Chatbot</h2>
+        </div>
+        <div className="flex items-center">
+          <button
+            onClick={toggleVoiceMode}
+            className="text-white mr-3 hover:text-gray-300"
+          >
+            {isVoiceMode ? "Text Mode" : "Voice Mode"}
+          </button>
+          <button
+            onClick={closeChat}
+            className="text-white hover:text-gray-300"
+          >
+            <FaTimes />
+          </button>
+        </div>
+      </div>
 
+      {/* Chat Content */}
       {isVoiceMode ? (
         <VoiceInterface
-          messages={messages}
-          isListening={isListening}
-          isSpeaking={isSpeaking}
-          audioLevel={audioLevel}
-          toggleListening={toggleListening}
+          messages={messages.map((msg) => ({
+            ...msg,
+            isTamil,
+            isSpeak,
+          }))}
+          sendMessage={sendMessage}
         />
       ) : (
-        <ChatInterface messages={messages} handleSend={handleSend} />
+        <ChatInterface
+          messages={messages.map((msg) => ({
+            ...msg,
+            isTamil,
+            isSpeak,
+            setIsTamil,
+            setIsSpeak,
+          }))}
+          handleSend={sendMessage}
+        />
       )}
+
+      {/* Hidden scroll reference */}
+      <div ref={messageEndRef} />
     </div>
   );
 };

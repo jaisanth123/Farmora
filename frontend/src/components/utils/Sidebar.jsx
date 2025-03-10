@@ -60,7 +60,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           <span className="text-lg">Crop Recommendation</span>
         </Link>
         <Link
-          to="/disease-diagnosis"
+          to="/disease"
           className="flex items-center p-4 my-2 rounded-lg hover:bg-gray-800 transition-all duration-300 hover:pl-6"
           onClick={onClose}
         >
