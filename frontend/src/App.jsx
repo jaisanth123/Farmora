@@ -21,7 +21,7 @@ import DiagnosisHomePage from "./components/PlantDisease/DiagnosisHomePage.jsx";
 import DemandCrop from "./components/CropRecommend/DemandCrop.jsx";
 import SeasonalPredict from "./components/CropRecommend/SeasonalPredict.jsx";
 import Recommendation from "./components/CropRecommend/Recommendation.jsx";
-import { withTranslation } from "react-google-multi-lang";
+//import { withTranslation } from "react-google-multi-lang";
 import GoogleTranslate from "./components/GoogleTranslate.jsx";
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

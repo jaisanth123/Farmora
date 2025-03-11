@@ -12,28 +12,26 @@ import {
   FaGlobe,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-google-multi-lang";
 import { BsChatLeftTextFill } from "react-icons/bs";
 
 const NavBar = ({ toggleSidebar }) => {
-  const { setLanguage } = useTranslation();
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showLangDropdown, setShowLangDropdown] = useState(false);
-  const [currentLang, setCurrentLang] = useState("en");
+  // const [currentLang, setCurrentLang] = useState("en");
 
   const dropdownRef = useRef(null);
   const langDropdownRef = useRef(null);
 
   // Language options with flag codes and names
-  const languages = [
-    { code: "en", name: "English", flag: "gb" },
-    { code: "ta", name: "Tamil", flag: "in" },
-    { code: "es", name: "Español", flag: "es" },
-    { code: "fr", name: "Français", flag: "fr" },
-    { code: "hi", name: "हिंदी", flag: "in" },
-    { code: "zh", name: "中文", flag: "cn" },
-  ];
+  // const languages = [
+  //   { code: "en", name: "English", flag: "gb" },
+  //   { code: "ta", name: "Tamil", flag: "in" },
+  //   { code: "es", name: "Español", flag: "es" },
+  //   { code: "fr", name: "Français", flag: "fr" },
+  //   { code: "hi", name: "हिंदी", flag: "in" },
+  //   { code: "zh", name: "中文", flag: "cn" },
+  // ];
 
   // Toggle dropdown functions
   const toggleDropdown = () => {
@@ -44,13 +42,6 @@ const NavBar = ({ toggleSidebar }) => {
   const toggleLangDropdown = () => {
     setShowLangDropdown(!showLangDropdown);
     if (showDropdown) setShowDropdown(false);
-  };
-
-  // Handle language change
-  const handleLanguageChange = (langCode) => {
-    setLanguage(langCode);
-    setCurrentLang(langCode);
-    setShowLangDropdown(false);
   };
 
   // Get flag emoji from country code
@@ -89,27 +80,29 @@ const NavBar = ({ toggleSidebar }) => {
 
   return (
     <nav className="bg-black p-4 shadow-lg fixed top-0 left-0 right-0 w-full z-40">
-      <div className="w-full h-10 flex justify-between items-center">
+      <div className="flex justify-between items-center h-10 max-w-7xl mx-auto">
+        {/* Left side - Logo and sidebar toggle */}
         <div className="flex items-center text-white">
           <FaBars
             onClick={toggleSidebar}
-            className="cursor-pointer mr-4 text-2xl hover:scale-110 sidebar-toggle transition"
+            className="cursor-pointer mr-4 text-2xl hover:scale-110 transition duration-300"
           />
           <Link
             to="/dashboard"
-            className="text-white hover:underline duration-500 transition"
+            className="text-white hover:underline transition duration-300"
           >
-            <span className="font-bold hover:scale-110 text-2xl">
+            <span className="font-bold hover:scale-110 text-2xl transition duration-300">
               Farmora 🌾
             </span>
           </Link>
         </div>
 
-        <div className="flex space-x-8 mr-4 relative">
+        {/* Right side - Navigation links */}
+        <div className="flex items-center space-x-6">
           {/* Home Link */}
           <Link
             to="/dashboard"
-            className="text-white hover:text-green-400 hover:scale-110 hover:underline duration-500 transition flex items-center"
+            className="text-white hover:text-green-400 hover:scale-110 hover:underline transition duration-300 flex items-center"
           >
             <FaHome className="mr-2" />
             <span>Home</span>
@@ -119,7 +112,7 @@ const NavBar = ({ toggleSidebar }) => {
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={toggleDropdown}
-              className="text-white hover:text-green-400 hover:scale-110 hover:underline duration-500 transition flex items-center"
+              className="text-white hover:text-green-400 hover:scale-110 hover:underline transition duration-300 flex items-center"
               aria-expanded={showDropdown}
               aria-haspopup="true"
             >
@@ -133,10 +126,10 @@ const NavBar = ({ toggleSidebar }) => {
             </button>
 
             {showDropdown && (
-              <div className="absolute bg-white rounded-md shadow-lg mt-2 py-2 w-56 transition-opacity duration-300 ease-in-out opacity-100 transform scale-100 origin-top">
+              <div className="absolute bg-white rounded-md shadow-lg mt-2 py-2 w-56 transition-opacity duration-300 ease-in-out opacity-100 transform scale-100 origin-top z-50">
                 <Link
                   to="/crop-recommendation"
-                  className="block px-4 py-2 text-gray-800 hover:bg-green-100 transition flex items-center"
+                  className="block px-4 py-2 text-gray-800 hover:bg-green-100 transition duration-300 flex items-center"
                   onClick={() => setShowDropdown(false)}
                 >
                   <FaSeedling className="mr-2 text-green-600" />
@@ -144,7 +137,7 @@ const NavBar = ({ toggleSidebar }) => {
                 </Link>
                 <Link
                   to="/disease"
-                  className="block px-4 py-2 text-gray-800 hover:bg-green-100 transition flex items-center"
+                  className="block px-4 py-2 text-gray-800 hover:bg-green-100 transition duration-300 flex items-center"
                   onClick={() => setShowDropdown(false)}
                 >
                   <FaMicroscope className="mr-2 text-red-600" />
@@ -157,7 +150,7 @@ const NavBar = ({ toggleSidebar }) => {
           {/* Discussion Forum Link */}
           <Link
             to="/forum"
-            className="text-white hover:text-green-400 hover:scale-110 hover:underline duration-500 transition flex items-center"
+            className="text-white hover:text-green-400 hover:scale-110 hover:underline transition duration-300 flex items-center"
           >
             <BsChatLeftTextFill className="mr-2" />
             <span>Discussion Forum</span>
@@ -166,19 +159,22 @@ const NavBar = ({ toggleSidebar }) => {
           {/* Profile Link */}
           <Link
             to="/profile"
-            className="text-white hover:text-green-400 hover:scale-110 hover:underline duration-500 transition flex items-center"
+            className="text-white hover:text-green-400 hover:scale-110 hover:underline transition duration-300 flex items-center"
           >
             <FaUser className="mr-2" />
             <span>Profile</span>
           </Link>
+
+          {/* Google Translate */}
           <div className="text-white">
             <GoogleTranslate />
           </div>
-          {/* Language Dropdown */}
-          <div className="relative" ref={langDropdownRef}>
+
+          {/* Language Dropdown - Currently disabled */}
+          {/* <div className="relative" ref={langDropdownRef}>
             <button
               onClick={toggleLangDropdown}
-              className="text-white hover:text-green-400 hover:scale-110 hover:underline duration-500 transition flex items-center"
+              className="text-white hover:text-green-400 hover:scale-110 hover:underline transition duration-300 flex items-center"
               aria-expanded={showLangDropdown}
               aria-haspopup="true"
             >
@@ -198,12 +194,12 @@ const NavBar = ({ toggleSidebar }) => {
             </button>
 
             {showLangDropdown && (
-              <div className="absolute right-0 bg-white rounded-md shadow-lg mt-2 py-2 w-40 transition-all duration-300 ease-in-out animate-fadeIn">
+              <div className="absolute right-0 bg-white rounded-md shadow-lg mt-2 py-2 w-40 transition-all duration-300 ease-in-out animate-fadeIn z-50">
                 {languages.map((language) => (
                   <button
                     key={language.code}
                     onClick={() => handleLanguageChange(language.code)}
-                    className={`w-full text-left px-4 py-2 hover:bg-green-100 transition flex items-center justify-between ${
+                    className={`w-full text-left px-4 py-2 hover:bg-green-100 transition duration-300 flex items-center justify-between ${
                       currentLang === language.code
                         ? "bg-green-50 font-medium"
                         : ""
@@ -217,7 +213,7 @@ const NavBar = ({ toggleSidebar }) => {
                 ))}
               </div>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
     </nav>
