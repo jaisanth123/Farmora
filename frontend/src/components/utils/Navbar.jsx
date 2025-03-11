@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import GoogleTranslate from "../GoogleTranslate";
 import {
   FaBars,
   FaHome,
@@ -170,7 +171,9 @@ const NavBar = ({ toggleSidebar }) => {
             <FaUser className="mr-2" />
             <span>Profile</span>
           </Link>
-
+          <div className="text-white">
+            <GoogleTranslate />
+          </div>
           {/* Language Dropdown */}
           <div className="relative" ref={langDropdownRef}>
             <button

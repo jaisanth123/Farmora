@@ -1,60 +1,75 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FaArrowLeft, FaArrowRight, FaNewspaper } from "react-icons/fa";
+import { fetchAgricultureNews } from "./NewsApi";
 
 const AgricultureNewsCarousel = ({ onNewsClick }) => {
-  const newsArticles = [
-    {
-      id: 1,
-      title:
-        "What the 'Free the Beer' case can teach us about interprovincial trade",
-      description:
-        "In 2017, the Supreme Court of Canada had the chance to change the landscape of Canadian trade through a decision around a man and his carload of booze. Now, those cross-province trade barriers are getting another look.",
-      source: "CBC",
-      published: "2025-03-02",
-    },
-    {
-      id: 8,
-      title: "VIDEO: FG receives first batch of farming equipment from Belarus",
-      description:
-        "The Federal Government has received the first batch of 2,000 tractors and 9,027 other farming equipment from Belarus as part of its efforts to accelerate food production in the country.",
-      source: "Punch News",
-      published: "2025-02-25",
-    },
-    {
-      id: 10,
-      title: "Wealth in animal waste",
-      description: "It is a green source of energy with great potential",
-      source: "The Hindu Business Line",
-      published: "2025-03-05",
-    },
-    {
-      id: 16,
-      title:
-        "The role of government policies in promoting solar adoption among farmers",
-      description:
-        "Government support and financial incentives drive solar energy adoption in agriculture, promoting sustainability and energy security for farmers worldwide.",
-      source: "The Hindu Business Line",
-      published: "2025-02-22",
-    },
-    {
-      id: 17,
-      title:
-        "Women-led farming cooperatives: Empowering communities through agriculture",
-      description:
-        "Women-led cooperatives in the Eastern Himalayan Region empower women in agriculture, address societal biases, and drive economic development.",
-      source: "The Hindu Business Line",
-      published: "2025-03-08",
-    },
-  ];
-
+  const [newsArticles, setNewsArticles] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Fetch news data when component mounts
+  useEffect(() => {
+    const loadNews = async () => {
+      try {
+        setIsLoading(true);
+        console.log("Attempting to fetch news...");
+        const articles = await fetchAgricultureNews();
+        console.log("API response:", articles);
+
+        // Ensure articles is an array before setting state
+        if (Array.isArray(articles) && articles.length > 0) {
+          setNewsArticles(articles);
+        } else {
+          // Fallback to mock data if API returns empty or non-array
+          setNewsArticles([
+            {
+              id: 1,
+              title:
+                "What the 'Free the Beer' case can teach us about interprovincial trade",
+              description:
+                "In 2017, the Supreme Court of Canada had the chance to change the landscape of Canadian trade through a decision around a man and his carload of booze.",
+              source: "CBC",
+              published: "2025-03-02",
+            },
+            {
+              id: 2,
+              title: "New agricultural subsidies announced for organic farmers",
+              description:
+                "Government introduces new financial incentives for farmers transitioning to organic methods.",
+              source: "AgriNews",
+              published: "2025-03-01",
+            },
+            {
+              id: 3,
+              title: "Climate change impacts on crop yields in 2025",
+              description:
+                "Researchers predict significant changes to agricultural output due to shifting weather patterns.",
+              source: "Climate Report",
+              published: "2025-02-28",
+            },
+          ]);
+        }
+      } catch (err) {
+        console.error("Failed to load news:", err);
+        setError("Failed to load agricultural news. Please try again later.");
+        // Initialize with empty array to prevent mapping errors
+        setNewsArticles([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadNews();
+  }, []);
+
+  // Auto-rotate carousel
   useEffect(() => {
     let interval;
-    if (!isPaused) {
+    if (!isPaused && newsArticles.length > 0) {
       interval = setInterval(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % newsArticles.length);
       }, 5000);
@@ -83,6 +98,33 @@ const AgricultureNewsCarousel = ({ onNewsClick }) => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  if (isLoading) {
+    return (
+      <div className="mb-8 bg-white p-4 rounded-lg shadow-sm text-center">
+        <p>Loading agriculture news...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mb-8 bg-white p-4 rounded-lg shadow-sm text-center text-red-500">
+        <p>{error}</p>
+      </div>
+    );
+  }
+
+  if (!Array.isArray(newsArticles) || newsArticles.length === 0) {
+    return (
+      <div className="mb-8 bg-white p-4 rounded-lg shadow-sm text-center">
+        <p>No agriculture news available at this time.</p>
+      </div>
+    );
+  }
+
+  // Only display the current article
+  const currentArticle = newsArticles[currentIndex];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -102,32 +144,20 @@ const AgricultureNewsCarousel = ({ onNewsClick }) => {
         onMouseEnter={() => setShowLeftArrow(true)}
         onMouseLeave={() => setShowLeftArrow(false)}
       >
+        {/* Display only the current news item */}
         <div
-          className="transition-transform duration-500 ease-in-out h-full"
-          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+          className="bg-white p-4 rounded-lg border border-gray-200 h-full flex flex-col cursor-pointer"
+          onClick={() => handleNewsClick(currentArticle)}
         >
-          <div className="absolute flex w-full h-full">
-            {newsArticles.map((news, index) => (
-              <div
-                key={news.id}
-                className="w-full flex-shrink-0 h-full cursor-pointer"
-                onClick={() => handleNewsClick(news)}
-                style={{ left: `${index * 100}%` }}
-              >
-                <div className="bg-white p-4 rounded-lg border border-gray-200 h-full flex flex-col">
-                  <h3 className="font-medium text-xl mb-3 line-clamp-1">
-                    {news.title}
-                  </h3>
-                  <p className="text-gray-600 text-lg line-clamp-2 mb-2">
-                    {news.description}
-                  </p>
-                  <div className="mt-auto flex justify-between items-center text-lg text-gray-500">
-                    <span>{news.source}</span>
-                    <span>{formatDate(news.published)}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <h3 className="font-medium text-xl mb-3 line-clamp-1">
+            {currentArticle.title}
+          </h3>
+          <p className="text-gray-600 text-lg line-clamp-2 mb-2">
+            {currentArticle.description}
+          </p>
+          <div className="mt-auto flex justify-between items-center text-lg text-gray-500">
+            <span>{currentArticle.source}</span>
+            <span>{formatDate(currentArticle.published)}</span>
           </div>
         </div>
 

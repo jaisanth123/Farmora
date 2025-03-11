@@ -7,18 +7,19 @@ from models.crop_recommend.crop_recommend import router as crop_recommend_router
 from models.pest.pest import router as pest_router
 from models.crop_recommend.demand_crop import router as demand_router
 from models.crop_recommend.seasonal import router as seasonal_router
-
+from utils.info import router as info_router
 app = FastAPI()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Your Vite frontend URL
+    allow_origins=["http://localhost:5173","http://localhost:3000"],  # Your Vite frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Including the routers for each endpoint with prefixes
+app.include_router(info_router, prefix="/api")
 app.include_router(coordinates_router, prefix="/api")
 app.include_router(environmental_router, prefix="/api")
 # app.include_router(multilingual_router, prefix="/api")

@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa";
 
 import { MdOutlineForum, MdWbSunny } from "react-icons/md";
+import GoogleTranslate from "../GoogleTranslate";
 
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
@@ -100,6 +101,9 @@ const Sidebar = ({ isOpen, onClose }) => {
           <span className="text-lg">Profile</span>
         </Link>
       </nav>
+      <div className="flex justify-center items-center p-4 border-t border-white">
+        <GoogleTranslate />
+      </div>
 
       <div className="absolute bottom-0 left-0 w-full p-4 border-t border-white">
         <button

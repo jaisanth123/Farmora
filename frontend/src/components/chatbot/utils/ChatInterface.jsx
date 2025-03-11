@@ -1,4 +1,3 @@
-// ChatInterface.jsx
 import React, { useState } from "react";
 import ChatMessage from "../ChatMessage";
 import ChatInput from "../ChatInput";
@@ -18,8 +17,10 @@ const ChatInterface = ({ messages, handleSend }) => {
           <ChatMessage key={message.id} message={message} />
         ))}
       </div>
+
       <div className="border-t border-gray-200">
         {showSuggestions && <SuggestionRows handleSend={handleSend} />}
+
         <ChatInput
           onSend={handleSend}
           showSuggestions={showSuggestions}
