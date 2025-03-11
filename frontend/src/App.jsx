@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-
+import { UserContextProvider } from "./components/Hooks/UserContext";
 import Login from "./components/firebase/Login";
 import Register from "./components/firebase/Register";
 import Dashboard from "./components/dashboard/Dashboard";
@@ -21,6 +21,7 @@ import DiagnosisHomePage from "./components/PlantDisease/DiagnosisHomePage.jsx";
 import DemandCrop from "./components/CropRecommend/DemandCrop.jsx";
 import SeasonalPredict from "./components/CropRecommend/SeasonalPredict.jsx";
 import Recommendation from "./components/CropRecommend/Recommendation.jsx";
+import { withTranslation } from "react-google-multi-lang";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -75,8 +76,8 @@ function App() {
   }, [isSidebarOpen, isChatOpen]);
 
   return (
-    <AuthProvider>
-      <Router>
+    <UserContextProvider>
+      <AuthProvider>
         <div className="flex flex-col min-h-screen m-0 p-0 overflow-x-hidden">
           {/* Navbar with toggle buttons */}
           <Navbar
@@ -121,8 +122,8 @@ function App() {
             </Routes>
           </main>
         </div>
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </UserContextProvider>
   );
 }
 

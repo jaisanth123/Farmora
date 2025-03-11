@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { FaTint, FaWind } from "react-icons/fa";
-
+import { withTranslation } from "react-google-multi-lang";
 const DashboardHeader = ({
   weatherData,
   setWeatherData,
@@ -132,4 +132,4 @@ const DashboardHeader = ({
   );
 };
 
-export default DashboardHeader;
+export default withTranslation(DashboardHeader);

@@ -5,6 +5,7 @@ import ChatInterface from "./utils/ChatInterface";
 import VoiceInterface from "./utils/VoiceInterface";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
+import { withTranslation } from "react-google-multi-lang";
 
 const ChatbotDialog = ({ closeChat }) => {
   const [userId, setUserId] = useState("");
@@ -169,4 +170,4 @@ const ChatbotDialog = ({ closeChat }) => {
   );
 };
 
-export default ChatbotDialog;
+export default withTranslation(ChatbotDialog);

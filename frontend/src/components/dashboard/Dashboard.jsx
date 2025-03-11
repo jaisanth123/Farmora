@@ -9,6 +9,7 @@ import ActionMenuBar from "./utils/ActionMenuBar";
 import DashboardContent from "./utils/DashboardContent";
 import CalendarView from "./utils/CalendarView";
 import ChatbotWrapper from "./utils/ChatbotWrapper";
+// import { withTranslation } from "react-google-multi-lang";
 
 // Google Calendar API integration
 import { fetchGoogleCalendarEvents } from "./utils/fetchGoogleCalendarEvents";
@@ -135,4 +136,5 @@ const Dashboard = () => {
   );
 };
 
+// export default withTranslation(Dashboard);
 export default Dashboard;
