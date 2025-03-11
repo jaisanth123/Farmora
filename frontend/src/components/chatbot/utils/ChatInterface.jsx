@@ -19,7 +19,12 @@ const ChatInterface = ({ messages, handleSend }) => {
       </div>
 
       <div className="border-t border-gray-200">
-        {showSuggestions && <SuggestionRows handleSend={handleSend} />}
+        {showSuggestions && (
+          <SuggestionRows
+            handleSend={handleSend}
+            toggleSuggestions={toggleSuggestions}
+          />
+        )}
 
         <ChatInput
           onSend={handleSend}

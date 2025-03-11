@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
 
-const SuggestionRows = ({ handleSend }) => {
+const SuggestionRows = ({ handleSend, toggleSuggestions }) => {
   const [scrollPosition, setScrollPosition] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -23,6 +23,12 @@ const SuggestionRows = ({ handleSend }) => {
   // Split suggestions into two rows
   const firstRowSuggestions = suggestions.slice(0, 4);
   const secondRowSuggestions = suggestions.slice(4);
+
+  // Handle suggestion click
+  const handleSuggestionClick = (text) => {
+    handleSend(text);
+    toggleSuggestions(); // Close the suggestions panel
+  };
 
   const scrollRight = () => {
     const scrollAmount = 150;
@@ -93,7 +99,7 @@ const SuggestionRows = ({ handleSend }) => {
           <button
             key={suggestion.id}
             className="px-3 py-1 bg-black text-white text-sm border border-gray-600 rounded-full whitespace-nowrap hover:bg-gray-800 transition-colors"
-            onClick={() => handleSend(suggestion.text)}
+            onClick={() => handleSuggestionClick(suggestion.text)}
           >
             {suggestion.text}
           </button>
@@ -109,7 +115,7 @@ const SuggestionRows = ({ handleSend }) => {
           <button
             key={suggestion.id}
             className="px-3 py-1 bg-black text-white text-sm border border-gray-600 rounded-full whitespace-nowrap hover:bg-gray-800 transition-colors"
-            onClick={() => handleSend(suggestion.text)}
+            onClick={() => handleSuggestionClick(suggestion.text)}
           >
             {suggestion.text}
           </button>
