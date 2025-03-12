@@ -26,37 +26,12 @@ const AgricultureNewsCarousel = ({ onNewsClick }) => {
         } else {
           // Fallback to mock data if API returns empty or non-array
           setNewsArticles([
-            {
-              id: 1,
-              title:
-                "What the 'Free the Beer' case can teach us about interprovincial trade",
-              description:
-                "In 2017, the Supreme Court of Canada had the chance to change the landscape of Canadian trade through a decision around a man and his carload of booze.",
-              source: "CBC",
-              published: "2025-03-02",
-            },
-            {
-              id: 2,
-              title: "New agricultural subsidies announced for organic farmers",
-              description:
-                "Government introduces new financial incentives for farmers transitioning to organic methods.",
-              source: "AgriNews",
-              published: "2025-03-01",
-            },
-            {
-              id: 3,
-              title: "Climate change impacts on crop yields in 2025",
-              description:
-                "Researchers predict significant changes to agricultural output due to shifting weather patterns.",
-              source: "Climate Report",
-              published: "2025-02-28",
-            },
+            // your fallback data
           ]);
         }
       } catch (err) {
         console.error("Failed to load news:", err);
         setError("Failed to load agricultural news. Please try again later.");
-        // Initialize with empty array to prevent mapping errors
         setNewsArticles([]);
       } finally {
         setIsLoading(false);

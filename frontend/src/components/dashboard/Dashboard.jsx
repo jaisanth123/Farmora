@@ -12,7 +12,10 @@ import ChatbotWrapper from "./utils/ChatbotWrapper";
 // import { withTranslation } from "react-google-multi-lang";
 
 // Google Calendar API integration
-import { fetchGoogleCalendarEvents } from "./utils/fetchGoogleCalendarEvents";
+import {
+  fetchGoogleCalendarEvents,
+  addEventToGoogleCalendar,
+} from "../dashboard/utils/fetchGoogleCalendarEvents";
 
 const Dashboard = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -22,6 +25,7 @@ const Dashboard = () => {
   const [isWeatherLoading, setIsWeatherLoading] = useState(true);
   const [events, setEvents] = useState([]);
   const [viewType, setViewType] = useState("dashboard"); // "dashboard" or "calendar"
+  const [isCalendarLoading, setIsCalendarLoading] = useState(true);
 
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen);
@@ -40,20 +44,39 @@ const Dashboard = () => {
 
   // Load calendar events
   useEffect(() => {
-    // Try to fetch from Google Calendar API first
-    const loadEvents = async () => {
-      try {
-        const googleEvents = await fetchGoogleCalendarEvents();
-        setEvents(googleEvents);
-      } catch (error) {
-        console.error("Error loading Google Calendar events:", error);
-        // Fallback to sample data
-        loadSampleEvents();
-      }
-    };
-
-    loadEvents();
+    loadCalendarEvents();
   }, []);
+
+  const loadCalendarEvents = async () => {
+    setIsCalendarLoading(true);
+    // Try to fetch from Google Calendar API first
+    try {
+      const googleEvents = await fetchGoogleCalendarEvents();
+      setEvents(googleEvents);
+      setIsCalendarLoading(false);
+    } catch (error) {
+      console.error("Error loading Google Calendar events:", error);
+      // Fallback to sample data
+      loadSampleEvents();
+      // toast.error(
+      //   "Couldn't load calendar from Google. Using sample data instead.",
+      //   {
+      //     position: "top-right",
+      //     autoClose: 5000,
+      //   }
+      // );
+      setIsCalendarLoading(false);
+    }
+  };
+
+  // Function to handle event updates (for the Add Event functionality)
+  const handleEventsUpdate = (updatedEvents) => {
+    setEvents(updatedEvents);
+    toast.success("Event added successfully!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+  };
 
   // Fallback sample events
   const loadSampleEvents = () => {
@@ -122,8 +145,12 @@ const Dashboard = () => {
       {/* Main Content - Dashboard or Calendar */}
       {viewType === "dashboard" ? (
         <DashboardContent events={events} />
+      ) : isCalendarLoading ? (
+        <div className="bg-white rounded-lg shadow-sm p-4 text-center py-10">
+          Loading calendar events...
+        </div>
       ) : (
-        <CalendarView events={events} />
+        <CalendarView events={events} onEventsUpdate={handleEventsUpdate} />
       )}
 
       {/* Chatbot Component */}
