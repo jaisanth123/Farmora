@@ -5,7 +5,8 @@ gTTS
 soundfile
 sounddevice
 requests
-python-dotenv 
+python-dotenv
 scikit-learn
 python-multipart
 pandas
+feedparser

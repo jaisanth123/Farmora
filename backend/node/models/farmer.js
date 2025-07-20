@@ -1,40 +1,40 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 const farmerSchema = new mongoose.Schema({
   userId: { type: String, required: true },
 
-  personalInfo: {  
+  personalInfo: {
     name: { type: String, required: true },
     age: { type: Number, required: true },
     state: { type: String, required: true },
-    district: { type: String, required: true }
+    district: { type: String, required: true },
   },
 
-  landInfo: {  
+  landInfo: {
     district: { type: String, required: true },
     state: { type: String, required: true },
     crops: [String],
     location: {
-      type: { type: String, enum: ['Point'], required: true },
-      coordinates: { type: [Number], required: true }
+      type: { type: String, enum: ["Point"], required: true },
+      coordinates: { type: [Number], required: true },
     },
     soilProperties: {
       soilColor: String,
       nitrogen: Number,
       phosphorous: Number,
       potassium: Number,
-      pH: Number
+      pH: Number,
     },
     environmentalConditions: {
       temperature: Number,
       humidity: Number,
-      rainfall: Number
+      rainfall: Number,
     },
-  
-  createdAt: { type: Date, default: Date.now }
-  }
+
+    createdAt: { type: Date, default: Date.now },
+  },
 });
 
 // Index for geospatial queries
 farmerSchema.index({ "landInfo.location": "2dsphere" });
 
-export default mongoose.model('Farmer', farmerSchema);
+export default mongoose.model("Farmer", farmerSchema);

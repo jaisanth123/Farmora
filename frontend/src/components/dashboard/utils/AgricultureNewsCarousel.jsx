@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { FaArrowLeft, FaArrowRight, FaNewspaper } from "react-icons/fa";
 import { fetchAgricultureNews } from "./NewsApi";
 
-const AgricultureNewsCarousel = ({ onNewsClick }) => {
+const AgricultureNewsCarousel = () => {
   const [newsArticles, setNewsArticles] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -62,12 +62,6 @@ const AgricultureNewsCarousel = ({ onNewsClick }) => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % newsArticles.length);
   };
 
-  const handleNewsClick = (news) => {
-    if (onNewsClick) {
-      onNewsClick(news);
-    }
-  };
-
   const formatDate = (dateString) => {
     const options = { year: "numeric", month: "short", day: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
@@ -76,15 +70,30 @@ const AgricultureNewsCarousel = ({ onNewsClick }) => {
   if (isLoading) {
     return (
       <div className="mb-8 bg-white p-4 rounded-lg shadow-sm text-center">
-        <p>Loading agriculture news...</p>
+        <div className="flex flex-col items-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mb-4"></div>
+          <p className="text-green-600 mb-2">
+            Fetching latest agriculture news...
+          </p>
+          <p className="text-sm text-gray-500">
+            Searching for farming, crops, agricultural schemes, and farmer
+            welfare
+          </p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="mb-8 bg-white p-4 rounded-lg shadow-sm text-center text-red-500">
-        <p>{error}</p>
+      <div className="mb-8 bg-white p-4 rounded-lg shadow-sm text-center">
+        <div className="flex flex-col items-center py-8">
+          <FaNewspaper className="text-4xl text-red-300 mb-4" />
+          <p className="text-red-600 mb-2">Unable to fetch agriculture news</p>
+          <p className="text-sm text-gray-500">
+            Please check your internet connection and try again later
+          </p>
+        </div>
       </div>
     );
   }
@@ -92,7 +101,16 @@ const AgricultureNewsCarousel = ({ onNewsClick }) => {
   if (!Array.isArray(newsArticles) || newsArticles.length === 0) {
     return (
       <div className="mb-8 bg-white p-4 rounded-lg shadow-sm text-center">
-        <p>No agriculture news available at this time.</p>
+        <div className="flex flex-col items-center py-8">
+          <FaNewspaper className="text-4xl text-gray-300 mb-4" />
+          <p className="text-gray-600 mb-2">
+            No agriculture news available at this time.
+          </p>
+          <p className="text-sm text-gray-500">
+            Please check back later for the latest updates on farming, crops,
+            agricultural schemes, and farmer welfare.
+          </p>
+        </div>
       </div>
     );
   }
@@ -115,24 +133,67 @@ const AgricultureNewsCarousel = ({ onNewsClick }) => {
       </h2>
 
       <div
-        className="relative overflow-hidden h-48"
+        className="relative overflow-hidden h-56"
         onMouseEnter={() => setShowLeftArrow(true)}
         onMouseLeave={() => setShowLeftArrow(false)}
       >
         {/* Display only the current news item */}
         <div
-          className="bg-white p-4 rounded-lg border border-gray-200 h-full flex flex-col cursor-pointer"
-          onClick={() => handleNewsClick(currentArticle)}
+          className="bg-white p-4 rounded-lg border border-gray-200 h-full flex cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() =>
+            window.open(currentArticle.url, "_blank", "noopener,noreferrer")
+          }
         >
-          <h3 className="font-medium text-xl mb-3 line-clamp-1">
-            {currentArticle.title}
-          </h3>
-          <p className="text-gray-600 text-lg line-clamp-2 mb-2">
-            {currentArticle.description}
-          </p>
-          <div className="mt-auto flex justify-between items-center text-lg text-gray-500">
-            <span>{currentArticle.source}</span>
-            <span>{formatDate(currentArticle.published)}</span>
+          {/* Image Section */}
+          <div className="flex-shrink-0 mr-4">
+            {currentArticle.image ? (
+              <img
+                src={currentArticle.image}
+                alt={currentArticle.title}
+                className="w-32 h-24 object-cover rounded-lg"
+                onError={(e) => {
+                  e.target.style.display = "none";
+                  e.target.nextSibling.style.display = "flex";
+                }}
+              />
+            ) : null}
+            <div
+              className="w-32 h-24 bg-gray-200 rounded-lg flex items-center justify-center"
+              style={{ display: currentArticle.image ? "none" : "flex" }}
+            >
+              <FaNewspaper className="text-gray-400" size={24} />
+            </div>
+          </div>
+
+          {/* Content Section */}
+          <div className="flex-1 flex flex-col">
+            <h3 className="font-medium text-xl mb-3 line-clamp-1">
+              {currentArticle.title}
+            </h3>
+            <p className="text-gray-600 text-lg line-clamp-2 mb-2 flex-1">
+              {currentArticle.description}
+            </p>
+            <div className="flex justify-between items-center">
+              <div className="text-lg text-gray-500">
+                <span>{currentArticle.source}</span>
+                <span className="ml-2">
+                  {formatDate(currentArticle.published)}
+                </span>
+              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(
+                    currentArticle.url,
+                    "_blank",
+                    "noopener,noreferrer"
+                  );
+                }}
+                className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm font-medium transition-colors"
+              >
+                View Details
+              </button>
+            </div>
           </div>
         </div>
 

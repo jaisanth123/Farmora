@@ -9,7 +9,7 @@ from models.crop_recommend.demand_crop import router as demand_router
 from models.crop_recommend.seasonal import router as seasonal_router
 from utils.info import router as info_router
 app = FastAPI()
-# Add CORS middleware
+# # Add CORS middlewasdare
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173","http://localhost:3000"],  # Your Vite frontend URL

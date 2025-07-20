@@ -19,14 +19,12 @@ import QuickActionCard from "../QuickActionCard";
 import MarketChart from "../MarketChart";
 import StatCard from "../StatCard";
 import RecentActivity from "../RecentActivity";
-import NewsDetailComponent from "./NewsDetailComponent";
 import AgricultureNewsCarousel from "./AgricultureNewsCarousel";
 import { toast } from "react-toastify";
 
 const DashboardContent = ({ events, farmerLocation }) => {
-  const [selectedNews, setSelectedNews] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
-  const [isWeatherLoading, setIsWeatherLoading] = useState(false);
+  const [isWeatherLoading, setIsWeatherLoading] = useState(true);
   const [forecastData, setForecastData] = useState([]);
 
   // Quick action cards data with descriptions
@@ -206,15 +204,6 @@ const DashboardContent = ({ events, farmerLocation }) => {
     fetchWeatherData();
   }, [farmerLocation]);
 
-  const handleNewsClick = (news) => {
-    setSelectedNews(news);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleBackToNews = () => {
-    setSelectedNews(null);
-  };
-
   return (
     <>
       {/* Quick Action Cards */}
@@ -231,11 +220,7 @@ const DashboardContent = ({ events, farmerLocation }) => {
           />
         ))}
       </div>
-      {selectedNews ? (
-        <NewsDetailComponent news={selectedNews} onBack={handleBackToNews} />
-      ) : (
-        <AgricultureNewsCarousel onNewsClick={handleNewsClick} />
-      )}
+      <AgricultureNewsCarousel />
 
       {/* Weather Summary Card - Updated to use real API data */}
       <motion.div

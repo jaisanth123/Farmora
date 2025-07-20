@@ -245,7 +245,7 @@ const FarmerRegistrationForm = () => {
 
   // Animated icon for loading
   const LoadingSpinner = () => (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center back justify-center">
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
