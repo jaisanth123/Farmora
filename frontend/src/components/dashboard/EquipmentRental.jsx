@@ -55,10 +55,7 @@ const EquipmentRental = ({ farmerLocation }) => {
         category: "Tractors",
         description: "Powerful 50HP tractor with modern features",
         dailyRate: 2500,
-        images: [
-          "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=400",
-          "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400",
-        ],
+        images: [],
         phoneNumber: "+91 98765 43210",
         status: "available",
         owner: "Rajesh Kumar",
@@ -74,9 +71,7 @@ const EquipmentRental = ({ farmerLocation }) => {
         category: "Irrigation Systems",
         description: "Complete drip irrigation setup for 2 acres",
         dailyRate: 800,
-        images: [
-          "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400",
-        ],
+        images: [],
         phoneNumber: "+91 87654 32109",
         status: "booked",
         owner: "Suresh Patel",
@@ -92,9 +87,7 @@ const EquipmentRental = ({ farmerLocation }) => {
         category: "Harvesters",
         description: "Efficient harvesting machine for wheat and rice",
         dailyRate: 5000,
-        images: [
-          "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=400",
-        ],
+        images: [],
         phoneNumber: "+91 76543 21098",
         status: "available",
         owner: "Mohan Singh",
@@ -110,9 +103,7 @@ const EquipmentRental = ({ farmerLocation }) => {
         category: "Plows",
         description: "Heavy-duty rotavator for soil preparation",
         dailyRate: 1200,
-        images: [
-          "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=400",
-        ],
+        images: [],
         phoneNumber: "+91 65432 10987",
         status: "available",
         owner: "Kumar Singh",
@@ -128,9 +119,7 @@ const EquipmentRental = ({ farmerLocation }) => {
         category: "Seeders",
         description: "Precision seed drill for row planting",
         dailyRate: 600,
-        images: [
-          "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400",
-        ],
+        images: [],
         phoneNumber: "+91 54321 09876",
         status: "available",
         owner: "Lakshmi Devi",
@@ -146,9 +135,7 @@ const EquipmentRental = ({ farmerLocation }) => {
         category: "Sprayers",
         description: "Backpack sprayer for pest control",
         dailyRate: 300,
-        images: [
-          "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400",
-        ],
+        images: [],
         phoneNumber: "+91 43210 98765",
         status: "maintenance",
         owner: "Ramesh Kumar",
@@ -445,7 +432,11 @@ const EquipmentRental = ({ farmerLocation }) => {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                    <FaTractor className="text-gray-400 text-4xl" />
+                    <div className="text-center">
+                      <FaTractor className="text-gray-400 text-4xl mx-auto mb-2" />
+                      <p className="text-gray-500 text-sm">{item.name}</p>
+                      <p className="text-gray-400 text-xs">Image coming soon</p>
+                    </div>
                   </div>
                 )}
               </AnimatePresence>

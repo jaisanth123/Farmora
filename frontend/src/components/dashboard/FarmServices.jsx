@@ -350,10 +350,6 @@ const FarmServices = ({ farmerLocation }) => {
         <h1 className="text-3xl font-bold text-gray-800 mb-2">
           Farm Services Hub
         </h1>
-        <p className="text-gray-600 max-w-2xl mx-auto">
-          Connect with nearby farmers for equipment rental and hire skilled farm
-          assistants based on your location
-        </p>
       </motion.div>
 
       {/* Location Display */}
