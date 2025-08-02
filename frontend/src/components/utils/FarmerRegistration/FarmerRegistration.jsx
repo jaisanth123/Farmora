@@ -243,22 +243,6 @@ const FarmerRegistrationForm = () => {
     }
   };
 
-  // Animated icon for loading
-  const LoadingSpinner = () => (
-    <div className="flex flex-col items-center back justify-center">
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-        className="w-16 h-16 mb-4"
-      >
-        <GiSprout className="w-full h-full text-green-500" />
-      </motion.div>
-      <p className="text-green-700 font-medium">
-        Processing your information...
-      </p>
-    </div>
-  );
-
   // Animated farm scene component - replacing Lottie
   const FarmAnimation = () => (
     <div className="relative h-48 w-full overflow-hidden bg-green-50 rounded-lg">
@@ -620,14 +604,6 @@ const FarmerRegistrationForm = () => {
           </motion.div>
         )}
       </motion.div>
-
-      {isLoading && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-            <LoadingSpinner />
-          </div>
-        </div>
-      )}
     </div>
   );
 };

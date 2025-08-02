@@ -144,7 +144,7 @@ const Dashboard = () => {
 
       {/* Main Content - Dashboard or Calendar */}
       {viewType === "dashboard" ? (
-        <DashboardContent events={events} />
+        <DashboardContent events={events} farmerLocation="Erode, Tamil Nadu" />
       ) : isCalendarLoading ? (
         <div className="bg-white rounded-lg shadow-sm p-4 text-center py-10">
           Loading calendar events...

@@ -23,6 +23,8 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Step4Environmental = ({
   landInfo,
@@ -30,7 +32,6 @@ const Step4Environmental = ({
   setStep,
   getLocationData,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
   const [showChart, setShowChart] = useState(false);
   const [weatherHistory, setWeatherHistory] = useState([]);
   const [error, setError] = useState(null);
@@ -45,7 +46,6 @@ const Step4Environmental = ({
   };
 
   const fetchWeatherByLocation = async () => {
-    setIsLoading(true);
     setError(null);
 
     // First, get the location data (coordinates, etc.)
@@ -55,6 +55,7 @@ const Step4Environmental = ({
     const locationName = `${landInfo.district}, ${landInfo.state}, India`;
 
     try {
+      toast.info("Fetching climate data...");
       const apiKey = "1172476f50624984850114232250203";
 
       // Fetch current weather
@@ -68,12 +69,13 @@ const Step4Environmental = ({
       );
 
       processWeatherData(currentResponse.data, forecastResponse.data);
+      toast.success("Climate data fetched successfully!");
     } catch (error) {
       console.error("Error fetching weather data:", error);
       setError(
         "Failed to fetch weather data. Please try again or use coordinates."
       );
-      setIsLoading(false);
+      toast.error("Failed to fetch climate data. Please try again.");
     }
   };
 
@@ -144,7 +146,6 @@ const Step4Environmental = ({
     });
 
     setWeatherHistory(weatherHistory);
-    setIsLoading(false);
     setShowChart(true);
   };
 
@@ -227,14 +228,7 @@ const Step4Environmental = ({
             <Cloud className="mr-2 text-green-600" />
             Environmental Analysis
           </h2>
-          <motion.div
-            animate={{ rotate: isLoading ? 360 : 0 }}
-            transition={{
-              duration: 2,
-              repeat: isLoading ? Infinity : 0,
-              ease: "linear",
-            }}
-          >
+          <motion.div>
             <Compass className="h-6 w-6 text-blue-500" />
           </motion.div>
         </div>
@@ -245,22 +239,13 @@ const Step4Environmental = ({
         <motion.button
           type="button"
           onClick={fetchWeatherByLocation}
-          disabled={!landInfo.district || !landInfo.state || isLoading}
+          disabled={!landInfo.district || !landInfo.state}
           className="w-full px-4 py-3 border border-transparent rounded-lg shadow-md text-base font-medium text-white bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          {isLoading ? (
-            <>
-              <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
-              Fetching Climate Data...
-            </>
-          ) : (
-            <>
-              <Zap className="mr-2 h-5 w-5" />
-              Get Intelligent Climate Analysis
-            </>
-          )}
+          <Zap className="mr-2 h-5 w-5" />
+          Get Intelligent Climate Analysis
         </motion.button>
         {(!landInfo.district || !landInfo.state) && (
           <p className="mt-1 text-xs text-orange-500">
@@ -600,6 +585,19 @@ const Step4Environmental = ({
           Submit <Check className="ml-2 h-4 w-4" />
         </motion.button>
       </motion.div>
+
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </motion.div>
   );
 };

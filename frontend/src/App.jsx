@@ -21,6 +21,7 @@ import DiagnosisHomePage from "./components/PlantDisease/DiagnosisHomePage.jsx";
 import DemandCrop from "./components/CropRecommend/DemandCrop.jsx";
 import SeasonalPredict from "./components/CropRecommend/SeasonalPredict.jsx";
 import Recommendation from "./components/CropRecommend/Recommendation.jsx";
+import FarmServicesPage from "./components/dashboard/FarmServicesPage";
 //import { withTranslation } from "react-google-multi-lang";
 import GoogleTranslate from "./components/GoogleTranslate.jsx";
 function App() {
@@ -102,7 +103,7 @@ function App() {
             <div>
               <GoogleTranslate />
             </div>
-          
+
             <Routes>
               <Route path="/" element={<Register />} />
               <Route path="/login" element={<Login />} />
@@ -117,6 +118,7 @@ function App() {
               <Route path="/seasonal" element={<SeasonalPredict />} />
               <Route path="/demand" element={<DemandCrop />} />
               <Route path="/crop-recommendation" element={<Recommendation />} />
+              <Route path="/farm-services" element={<FarmServicesPage />} />
 
               <Route
                 path="/disease-diagnosis"

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import {
   FaCalendarAlt,
   FaSeedling,
@@ -13,6 +14,7 @@ import {
   FaRulerCombined,
   FaTint,
   FaWind,
+  FaTractor,
 } from "react-icons/fa";
 
 import QuickActionCard from "../QuickActionCard";
@@ -20,9 +22,11 @@ import MarketChart from "../MarketChart";
 import StatCard from "../StatCard";
 import RecentActivity from "../RecentActivity";
 import AgricultureNewsCarousel from "./AgricultureNewsCarousel";
+import FarmServices from "../FarmServices";
 import { toast } from "react-toastify";
 
 const DashboardContent = ({ events, farmerLocation }) => {
+  const navigate = useNavigate();
   const [weatherData, setWeatherData] = useState(null);
   const [isWeatherLoading, setIsWeatherLoading] = useState(true);
   const [forecastData, setForecastData] = useState([]);
@@ -54,12 +58,20 @@ const DashboardContent = ({ events, farmerLocation }) => {
       delay: 0.3,
     },
     {
+      title: "Farm Services",
+      description: "Rent equipment & hire assistants",
+      icon: <FaTractor size={24} />,
+      path: "/farm-services",
+      color: "border-orange-500 hover:shadow-orange-100",
+      delay: 0.4,
+    },
+    {
       title: "Discussion Forum",
       description: "Connect with other farmers",
       icon: <FaComments size={24} />,
       path: "/forum",
       color: "border-purple-500 hover:shadow-purple-100",
-      delay: 0.4,
+      delay: 0.5,
     },
     {
       title: "Weather Forecast",
@@ -67,7 +79,7 @@ const DashboardContent = ({ events, farmerLocation }) => {
       icon: <FaCloudSun size={24} />,
       path: "/weather",
       color: "border-yellow-500 hover:shadow-yellow-100",
-      delay: 0.5,
+      delay: 0.6,
     },
   ];
 
@@ -207,7 +219,7 @@ const DashboardContent = ({ events, farmerLocation }) => {
   return (
     <>
       {/* Quick Action Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
         {quickActions.map((action, index) => (
           <QuickActionCard
             key={index}
@@ -228,7 +240,7 @@ const DashboardContent = ({ events, farmerLocation }) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.1 }}
         className="mb-8 bg-white p-4 rounded-lg shadow-sm"
-        onClick={() => (window.location.href = "/weather")}
+        onClick={() => navigate("/weather")}
       >
         <div className="flex justify-between items-center mb-3">
           <h2 className="text-lg font-medium">Weather Forecast</h2>
@@ -330,11 +342,21 @@ const DashboardContent = ({ events, farmerLocation }) => {
         ))}
       </div>
 
-      {/* Recent Activity and Upcoming Tasks */}
+      {/* Farm Services Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.4 }}
+        className="mb-8"
+      >
+        <FarmServices farmerLocation={farmerLocation} />
+      </motion.div>
+
+      {/* Recent Activity and Upcoming Tasks */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.5 }}
         className="grid grid-cols-1 lg:grid-cols-3 gap-6"
       >
         <div className="lg:col-span-2">
