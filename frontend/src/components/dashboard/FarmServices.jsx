@@ -34,6 +34,8 @@ const FarmServices = ({ farmerLocation }) => {
   const [locationResults, setLocationResults] = useState([]);
   const [currentLocationName, setCurrentLocationName] =
     useState("Erode, Tamil Nadu");
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchTimeout, setSearchTimeout] = useState(null);
 
   // Get farmer data from backend
   useEffect(() => {
@@ -259,14 +261,25 @@ const FarmServices = ({ farmerLocation }) => {
   const searchLocations = async (query) => {
     if (query.length < 3) {
       setLocationResults([]);
+      setIsSearching(false);
       return;
     }
 
+    setIsSearching(true);
+
     try {
+      // Simplified API call with proper parameters
       const response = await axios.get(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-          query
-        )},Tamil Nadu,India&limit=8&addressdetails=1&countrycodes=in&state=Tamil Nadu`
+        `https://nominatim.openstreetmap.org/search`,
+        {
+          params: {
+            q: `${query}, Tamil Nadu, India`,
+            format: "json",
+            limit: 8,
+            addressdetails: 1,
+            countrycodes: "in",
+          },
+        }
       );
 
       // Filter results to ensure they're in Tamil Nadu
@@ -283,8 +296,26 @@ const FarmServices = ({ farmerLocation }) => {
     } catch (error) {
       console.error("Error searching locations:", error);
       setLocationResults([]);
-      toast.error("Failed to search locations. Please try again.");
+      // Don't show error toast for every failed search
+      if (error.response?.status !== 400) {
+        toast.error("Failed to search locations. Please try again.");
+      }
+    } finally {
+      setIsSearching(false);
     }
+  };
+
+  // Debounced search function
+  const debouncedSearch = (query) => {
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    const timeout = setTimeout(() => {
+      searchLocations(query);
+    }, 500); // 500ms delay
+
+    setSearchTimeout(timeout);
   };
 
   // Handle location selection from search results
@@ -355,47 +386,49 @@ const FarmServices = ({ farmerLocation }) => {
       {/* Location Display */}
       <motion.div
         variants={itemVariants}
-        className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg border border-green-200"
+        className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-lg border border-green-200 shadow-md"
       >
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center">
-            <FaMapMarkerAlt className="text-green-600 mr-2" />
+            <FaMapMarkerAlt className="text-green-600 mr-3 text-xl" />
             <div>
-              <p className="text-sm font-medium text-gray-700">Your Location</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-base font-semibold text-gray-700">
+                Your Location
+              </p>
+              <p className="text-sm text-gray-600">
                 {currentLocationName}
                 {userLocation && (
-                  <span className="ml-2 text-gray-400">
+                  <span className="ml-2 text-gray-500">
                     ({userLocation.lat.toFixed(4)},{" "}
                     {userLocation.lng.toFixed(4)})
                   </span>
                 )}
               </p>
               {!userLocation && (
-                <p className="text-xs text-orange-600 mt-1">
+                <p className="text-sm text-orange-600 mt-1">
                   Location not set. Click "Use Current Location" to detect your
                   position.
                 </p>
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <button
               onClick={() => setShowLocationModal(true)}
-              className="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs hover:bg-blue-700 transition-colors flex items-center gap-1"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 font-medium shadow-md hover:shadow-lg min-w-[140px]"
             >
-              <FaMap />
+              <FaMap className="text-base" />
               Search Location
             </button>
             <button
               onClick={getCurrentLocation}
               disabled={isLocationLoading}
-              className="bg-green-600 text-white px-3 py-1 rounded-lg text-xs hover:bg-green-700 transition-colors flex items-center gap-1 disabled:opacity-50"
+              className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition-colors flex items-center justify-center gap-2 font-medium shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed min-w-[160px]"
             >
               {isLocationLoading ? (
-                <div className="animate-spin rounded-full h-3 w-3 border-b border-white"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-b border-white"></div>
               ) : (
-                <FaLocationArrow />
+                <FaLocationArrow className="text-base" />
               )}
               Use Current Location
             </button>
@@ -434,33 +467,73 @@ const FarmServices = ({ farmerLocation }) => {
                     placeholder="Enter town, village, or area name..."
                     value={searchLocation}
                     onChange={(e) => {
-                      setSearchLocation(e.target.value);
-                      searchLocations(e.target.value);
+                      const value = e.target.value;
+                      setSearchLocation(value);
+
+                      if (value.length < 3) {
+                        setLocationResults([]);
+                        setIsSearching(false);
+                      } else {
+                        debouncedSearch(value);
+                      }
                     }}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   />
+                  {isSearching && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-500"></div>
+                    </div>
+                  )}
                 </div>
-                {locationResults.length > 0 && (
-                  <div className="mt-2 max-h-48 overflow-y-auto bg-white rounded-lg border border-gray-200">
-                    {locationResults.map((location, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleLocationSelect(location)}
-                        className="w-full text-left p-3 hover:bg-gray-50 rounded text-sm border-b border-gray-100 transition-colors"
-                      >
-                        <div className="font-medium text-gray-800">
-                          {location.display_name.split(",")[0]}
+
+                {/* Search Results */}
+                {searchLocation.length >= 3 && (
+                  <div className="mt-2">
+                    {isSearching ? (
+                      <div className="flex items-center justify-center py-4 text-gray-500">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-500 mr-2"></div>
+                        Searching locations...
+                      </div>
+                    ) : locationResults.length > 0 ? (
+                      <div className="max-h-48 overflow-y-auto bg-white rounded-lg border border-gray-200">
+                        {locationResults.map((location, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handleLocationSelect(location)}
+                            className="w-full text-left p-3 hover:bg-gray-50 rounded text-sm border-b border-gray-100 transition-colors"
+                          >
+                            <div className="font-medium text-gray-800">
+                              {location.display_name.split(",")[0]}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {location.display_name}
+                            </div>
+                            {location.address && (
+                              <div className="text-xs text-green-600 mt-1">
+                                {location.address.district &&
+                                  `${location.address.district} District`}
+                                {location.address.district &&
+                                  location.address.state &&
+                                  " • "}
+                                {location.address.state}
+                              </div>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    ) : searchLocation.length >= 3 && !isSearching ? (
+                      <div className="mt-2 text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
+                        <div className="flex items-center">
+                          <FaSearch className="mr-2 text-gray-400" />
+                          No locations found in Tamil Nadu. Try a different
+                          search term.
                         </div>
-                        <div className="text-xs text-gray-500">
-                          {location.display_name}
+                        <div className="text-xs text-gray-400 mt-1">
+                          Try searching for: Chennai, Coimbatore, Madurai,
+                          Salem, etc.
                         </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {searchLocation.length > 0 && locationResults.length === 0 && (
-                  <div className="mt-2 text-sm text-gray-500">
-                    No locations found. Try a different search term.
+                      </div>
+                    ) : null}
                   </div>
                 )}
               </div>
@@ -527,7 +600,15 @@ const FarmServices = ({ farmerLocation }) => {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <EquipmentRental farmerLocation={currentLocationName} />
+                <EquipmentRental
+                  farmerLocation={
+                    userLocation
+                      ? `(${userLocation.lat.toFixed(
+                          4
+                        )}, ${userLocation.lng.toFixed(4)})`
+                      : currentLocationName
+                  }
+                />
               </motion.div>
             )}
 
@@ -539,7 +620,15 @@ const FarmServices = ({ farmerLocation }) => {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <FarmAssistants farmerLocation={currentLocationName} />
+                <FarmAssistants
+                  farmerLocation={
+                    userLocation
+                      ? `(${userLocation.lat.toFixed(
+                          4
+                        )}, ${userLocation.lng.toFixed(4)})`
+                      : currentLocationName
+                  }
+                />
               </motion.div>
             )}
           </AnimatePresence>

@@ -13,6 +13,8 @@ import {
   FaPlus,
   FaUpload,
   FaPen,
+  FaLocationArrow,
+  FaTimes,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 
@@ -24,6 +26,7 @@ const EquipmentRental = ({ farmerLocation }) => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [showAddForm, setShowAddForm] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
   const [newEquipment, setNewEquipment] = useState({
     name: "",
     category: "",
@@ -32,6 +35,8 @@ const EquipmentRental = ({ farmerLocation }) => {
     images: [],
     phoneNumber: "",
     status: "available",
+    latitude: "",
+    longitude: "",
   });
 
   const categories = [
@@ -46,7 +51,38 @@ const EquipmentRental = ({ farmerLocation }) => {
 
   const statuses = ["available", "booked", "maintenance"];
 
-  // Mock data for demonstration with proper farming equipment images
+  // Calculate distance between two coordinates using Haversine formula
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Radius of the Earth in kilometers
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * (Math.PI / 180)) *
+        Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c; // Distance in kilometers
+    return distance;
+  };
+
+  // Extract user location from farmerLocation prop
+  useEffect(() => {
+    if (farmerLocation) {
+      // Try to extract coordinates from the location string
+      const locationMatch = farmerLocation.match(/\(([^,]+),\s*([^)]+)\)/);
+      if (locationMatch) {
+        const lat = parseFloat(locationMatch[1]);
+        const lng = parseFloat(locationMatch[2]);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          setUserLocation({ lat, lng });
+        }
+      }
+    }
+  }, [farmerLocation]);
+
+  // Mock data for demonstration with different coordinates across Tamil Nadu
   useEffect(() => {
     const mockEquipment = [
       {
@@ -60,10 +96,9 @@ const EquipmentRental = ({ farmerLocation }) => {
         status: "available",
         owner: "Rajesh Kumar",
         location: "Erode, Tamil Nadu",
-        distance: "2.5 km",
         rating: 4.5,
         reviews: 12,
-        coordinates: [77.7274, 11.341],
+        coordinates: [77.7274, 11.341], // Erode
       },
       {
         id: 2,
@@ -75,11 +110,10 @@ const EquipmentRental = ({ farmerLocation }) => {
         phoneNumber: "+91 87654 32109",
         status: "booked",
         owner: "Suresh Patel",
-        location: "Erode, Tamil Nadu",
-        distance: "1.8 km",
+        location: "Coimbatore, Tamil Nadu",
         rating: 4.2,
         reviews: 8,
-        coordinates: [77.73, 11.345],
+        coordinates: [76.9558, 11.0168], // Coimbatore
       },
       {
         id: 3,
@@ -91,11 +125,10 @@ const EquipmentRental = ({ farmerLocation }) => {
         phoneNumber: "+91 76543 21098",
         status: "available",
         owner: "Mohan Singh",
-        location: "Erode, Tamil Nadu",
-        distance: "4.2 km",
+        location: "Madurai, Tamil Nadu",
         rating: 4.8,
         reviews: 15,
-        coordinates: [77.725, 11.338],
+        coordinates: [78.1198, 9.9252], // Madurai
       },
       {
         id: 4,
@@ -107,11 +140,10 @@ const EquipmentRental = ({ farmerLocation }) => {
         phoneNumber: "+91 65432 10987",
         status: "available",
         owner: "Kumar Singh",
-        location: "Erode, Tamil Nadu",
-        distance: "3.1 km",
+        location: "Salem, Tamil Nadu",
         rating: 4.3,
         reviews: 9,
-        coordinates: [77.728, 11.343],
+        coordinates: [78.146, 11.6643], // Salem
       },
       {
         id: 5,
@@ -123,11 +155,10 @@ const EquipmentRental = ({ farmerLocation }) => {
         phoneNumber: "+91 54321 09876",
         status: "available",
         owner: "Lakshmi Devi",
-        location: "Erode, Tamil Nadu",
-        distance: "1.5 km",
+        location: "Tiruchirappalli, Tamil Nadu",
         rating: 4.6,
         reviews: 11,
-        coordinates: [77.726, 11.34],
+        coordinates: [78.7047, 10.7905], // Tiruchirappalli
       },
       {
         id: 6,
@@ -139,18 +170,74 @@ const EquipmentRental = ({ farmerLocation }) => {
         phoneNumber: "+91 43210 98765",
         status: "maintenance",
         owner: "Ramesh Kumar",
-        location: "Erode, Tamil Nadu",
-        distance: "2.8 km",
+        location: "Chennai, Tamil Nadu",
         rating: 4.1,
         reviews: 7,
-        coordinates: [77.729, 11.344],
+        coordinates: [80.2707, 13.0827], // Chennai
+      },
+      {
+        id: 7,
+        name: "Mini Tractor",
+        category: "Tractors",
+        description: "Compact tractor for small farms",
+        dailyRate: 1500,
+        images: [],
+        phoneNumber: "+91 32109 87654",
+        status: "available",
+        owner: "Anand Kumar",
+        location: "Vellore, Tamil Nadu",
+        rating: 4.4,
+        reviews: 10,
+        coordinates: [79.1596, 12.9716], // Vellore
+      },
+      {
+        id: 8,
+        name: "Sprinkler System",
+        category: "Irrigation Systems",
+        description: "Automated sprinkler system for 3 acres",
+        dailyRate: 900,
+        images: [],
+        phoneNumber: "+91 21098 76543",
+        status: "available",
+        owner: "Priya Devi",
+        location: "Thanjavur, Tamil Nadu",
+        rating: 4.7,
+        reviews: 13,
+        coordinates: [79.1378, 10.7905], // Thanjavur
       },
     ];
 
-    setEquipment(mockEquipment);
-    setFilteredEquipment(mockEquipment);
+    // Calculate distances and sort by distance if user location is available
+    let equipmentWithDistance = mockEquipment;
+    if (userLocation) {
+      equipmentWithDistance = mockEquipment
+        .map((item) => {
+          const distance = calculateDistance(
+            userLocation.lat,
+            userLocation.lng,
+            item.coordinates[1], // latitude
+            item.coordinates[0] // longitude
+          );
+          return {
+            ...item,
+            distance: distance.toFixed(1),
+            distanceValue: distance,
+          };
+        })
+        .sort((a, b) => a.distanceValue - b.distanceValue); // Sort by distance
+    } else {
+      // If no user location, add default distances
+      equipmentWithDistance = mockEquipment.map((item) => ({
+        ...item,
+        distance: "N/A",
+        distanceValue: 999999,
+      }));
+    }
+
+    setEquipment(equipmentWithDistance);
+    setFilteredEquipment(equipmentWithDistance);
     setLoading(false);
-  }, []);
+  }, [userLocation]);
 
   useEffect(() => {
     let filtered = equipment;
@@ -185,6 +272,10 @@ const EquipmentRental = ({ farmerLocation }) => {
       return;
     }
 
+    // Use coordinates from form or default coordinates
+    const lat = parseFloat(newEquipment.latitude) || 11.341;
+    const lng = parseFloat(newEquipment.longitude) || 77.7274;
+
     const equipmentToAdd = {
       id: Date.now(),
       ...newEquipment,
@@ -193,7 +284,7 @@ const EquipmentRental = ({ farmerLocation }) => {
       distance: "0 km",
       rating: 0,
       reviews: 0,
-      coordinates: [77.7274, 11.341], // Default coordinates
+      coordinates: [lng, lat], // [longitude, latitude] format
     };
 
     setEquipment([equipmentToAdd, ...equipment]);
@@ -205,6 +296,8 @@ const EquipmentRental = ({ farmerLocation }) => {
       images: [],
       phoneNumber: "",
       status: "available",
+      latitude: "",
+      longitude: "",
     });
     setShowAddForm(false);
     toast.success("Equipment added successfully!");
@@ -217,6 +310,54 @@ const EquipmentRental = ({ farmerLocation }) => {
       )
     );
     toast.success(`Equipment status updated to ${newStatus}`);
+  };
+
+  // Get current location and fill coordinates
+  const getCurrentLocationForForm = () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by this browser.");
+      return;
+    }
+
+    const options = {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 60000,
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setNewEquipment((prev) => ({
+          ...prev,
+          latitude: latitude.toFixed(6),
+          longitude: longitude.toFixed(6),
+        }));
+        toast.success("Current location detected and coordinates filled!");
+      },
+      (error) => {
+        console.error("Error getting current location:", error);
+        let errorMessage = "Unable to get current location.";
+
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage =
+              "Location access denied. Please allow location access.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = "Location information unavailable.";
+            break;
+          case error.TIMEOUT:
+            errorMessage = "Location request timed out.";
+            break;
+          default:
+            errorMessage = "Unable to get current location.";
+        }
+
+        toast.error(errorMessage);
+      },
+      options
+    );
   };
 
   const getStatusColor = (status) => {
@@ -279,8 +420,17 @@ const EquipmentRental = ({ farmerLocation }) => {
           onClick={() => setShowAddForm(!showAddForm)}
           className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-700 transition-colors"
         >
-          <FaPlus />
-          Add Equipment
+          {showAddForm ? (
+            <>
+              <FaTimes />
+              Close
+            </>
+          ) : (
+            <>
+              <FaPlus />
+              Add Equipment
+            </>
+          )}
         </motion.button>
       </div>
 
@@ -294,7 +444,7 @@ const EquipmentRental = ({ farmerLocation }) => {
             className="bg-white p-6 rounded-lg shadow-md border border-gray-200"
           >
             <h3 className="text-lg font-semibold mb-4">Add Your Equipment</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <input
                 type="text"
                 placeholder="Equipment Name"
@@ -342,6 +492,46 @@ const EquipmentRental = ({ farmerLocation }) => {
                 }
                 className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <input
+                type="number"
+                step="any"
+                placeholder="Latitude"
+                value={newEquipment.latitude}
+                onChange={(e) =>
+                  setNewEquipment({
+                    ...newEquipment,
+                    latitude: e.target.value,
+                  })
+                }
+                className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+              <input
+                type="number"
+                step="any"
+                placeholder="Longitude"
+                value={newEquipment.longitude}
+                onChange={(e) =>
+                  setNewEquipment({
+                    ...newEquipment,
+                    longitude: e.target.value,
+                  })
+                }
+                className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+              <button
+                type="button"
+                onClick={getCurrentLocationForForm}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+              >
+                <FaLocationArrow />
+                Use Current Location
+              </button>
+            </div>
+
+            <div className="mt-4">
               <textarea
                 placeholder="Description"
                 value={newEquipment.description}
@@ -351,7 +541,7 @@ const EquipmentRental = ({ farmerLocation }) => {
                     description: e.target.value,
                   })
                 }
-                className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent md:col-span-2"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 rows="3"
               />
             </div>
@@ -465,7 +655,10 @@ const EquipmentRental = ({ farmerLocation }) => {
               <div className="flex items-center text-sm text-gray-500 mb-3">
                 <FaMapMarkerAlt className="mr-1" />
                 <span>
-                  {item.location} • {item.distance}
+                  {item.location} •{" "}
+                  <span className="font-medium text-green-600">
+                    {item.distance} km
+                  </span>
                 </span>
               </div>
 
