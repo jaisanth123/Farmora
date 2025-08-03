@@ -1,0 +1,129 @@
+{
+  "info": {
+    "name": "Farmora Chatbot API",
+    "description": "Collection for testing Farmora chatbot endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Root Endpoint",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8000/",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8000",
+          "path": [""]
+        }
+      }
+    },
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8000/api/chatbot/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8000",
+          "path": ["api", "chatbot", "health"]
+        }
+      }
+    },
+    {
+      "name": "Chat - Simple Message",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"hi\",\n  \"language\": \"english\",\n  \"session_id\": \"test123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8000/api/chatbot/chat",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8000",
+          "path": ["api", "chatbot", "chat"]
+        }
+      }
+    },
+    {
+      "name": "Chat - Tamil Message",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"வணக்கம்\",\n  \"language\": \"tamil\",\n  \"session_id\": \"test_tamil_123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8000/api/chatbot/chat",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8000",
+          "path": ["api", "chatbot", "chat"]
+        }
+      }
+    },
+    {
+      "name": "Chat - Long Message",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"What are the best crops to grow in Tamil Nadu during summer season?\",\n  \"language\": \"english\",\n  \"session_id\": \"test_long_123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8000/api/chatbot/chat",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8000",
+          "path": ["api", "chatbot", "chat"]
+        }
+      }
+    },
+    {
+      "name": "Chat - Farming Question",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"What fertilizers should I use for paddy cultivation?\",\n  \"language\": \"english\",\n  \"session_id\": \"test_farming_123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8000/api/chatbot/chat",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8000",
+          "path": ["api", "chatbot", "chat"]
+        }
+      }
+    }
+  ]
+}

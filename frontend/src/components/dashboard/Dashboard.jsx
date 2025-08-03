@@ -8,7 +8,7 @@ import DashboardHeader from "./utils/DashboardHeader";
 import ActionMenuBar from "./utils/ActionMenuBar";
 import DashboardContent from "./utils/DashboardContent";
 import CalendarView from "./utils/CalendarView";
-import ChatbotWrapper from "./utils/ChatbotWrapper";
+// import ChatbotWrapper from "./utils/ChatbotWrapper";
 // import { withTranslation } from "react-google-multi-lang";
 
 // Google Calendar API integration
@@ -18,8 +18,6 @@ import {
 } from "../dashboard/utils/fetchGoogleCalendarEvents";
 
 const Dashboard = () => {
-  const [isChatOpen, setIsChatOpen] = useState(false);
-
   const [showWelcome, setShowWelcome] = useState(true);
   const [weatherData, setWeatherData] = useState(null);
   const [isWeatherLoading, setIsWeatherLoading] = useState(true);
@@ -27,9 +25,9 @@ const Dashboard = () => {
   const [viewType, setViewType] = useState("dashboard"); // "dashboard" or "calendar"
   const [isCalendarLoading, setIsCalendarLoading] = useState(true);
 
-  const toggleChat = () => {
-    setIsChatOpen(!isChatOpen);
-  };
+  // const toggleChat = () => {
+  //   setIsChatOpen(!isChatOpen);
+  // };
 
   // Welcome notification
   useEffect(() => {
@@ -153,12 +151,12 @@ const Dashboard = () => {
         <CalendarView events={events} onEventsUpdate={handleEventsUpdate} />
       )}
 
-      {/* Chatbot Component */}
-      <ChatbotWrapper
+      {/* Chatbot Component - Removed to avoid conflicts with main ChatbotApp */}
+      {/* <ChatbotWrapper
         isChatOpen={isChatOpen}
         toggleChat={toggleChat}
         setIsChatOpen={setIsChatOpen}
-      />
+      /> */}
     </div>
   );
 };

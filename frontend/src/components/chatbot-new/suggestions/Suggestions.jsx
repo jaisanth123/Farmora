@@ -13,8 +13,9 @@ import {
   FaMapMarkerAlt,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import { cropRecommendationService } from "../../../services/cropRecommendationService";
 
-// List of districts (simplified from your second file)
+// List of districts
 const indianDistricts = [
   "Ariyalur",
   "Chennai",
@@ -31,7 +32,6 @@ const indianDistricts = [
   "Salem",
   "Thanjavur",
   "Tiruppur",
-  // Add more as needed
 ];
 
 // Seasons with icons
@@ -42,7 +42,11 @@ const indianSeasons = [
   { name: "Whole Year", period: "Whole Year" },
 ];
 
-const SuggestionRows = ({ handleSend, toggleSuggestions }) => {
+const Suggestions = ({
+  handleSend,
+  toggleSuggestions,
+  handleSuggestionClick,
+}) => {
   const [scrollPosition, setScrollPosition] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -103,11 +107,15 @@ const SuggestionRows = ({ handleSend, toggleSuggestions }) => {
   const secondRowSuggestions = suggestions.slice(4);
 
   // Handle suggestion click
-  const handleSuggestionClick = (text) => {
+  const handleSuggestionClickLocal = (text) => {
     if (text === "Crop recommendations") {
       setShowFeatureButtons(true);
     } else {
-      handleSend(text);
+      if (handleSuggestionClick) {
+        handleSuggestionClick(text);
+      } else {
+        handleSend(text);
+      }
       toggleSuggestions();
     }
   };
@@ -135,29 +143,113 @@ const SuggestionRows = ({ handleSend, toggleSuggestions }) => {
     }
   };
 
-  const handleSeasonalSubmit = (e) => {
+  const handleSeasonalSubmit = async (e) => {
     e.preventDefault();
-    handleSend(
-      `I want seasonal crop recommendations for ${district} during ${season} season.`
-    );
+    try {
+      const result = await cropRecommendationService.getSeasonalRecommendation(
+        district,
+        season
+      );
+
+      // Format the response for the chatbot
+      let response = `🌾 **Seasonal Crop Recommendations for ${result.district} in ${result.season}**\n\n`;
+
+      if (result.recommendations && result.recommendations.length > 0) {
+        response += "**Top Recommended Crops:**\n";
+        result.recommendations.forEach((crop, index) => {
+          response += `${index + 1}. **${crop.crop}** - Avg Production: ${
+            crop.average_production?.toFixed(2) || "N/A"
+          } tons\n`;
+        });
+
+        if (result.best_crop) {
+          response += `\n**Best Crop:** ${result.best_crop.name}`;
+          if (result.best_crop.predicted_production) {
+            response += ` (Predicted: ${result.best_crop.predicted_production.toFixed(
+              2
+            )} tons)`;
+          }
+          response += `\n*${result.best_crop.prediction_note}*`;
+        }
+      } else {
+        response +=
+          "No crop recommendations available for this district and season.";
+      }
+
+      handleSend(response);
+    } catch (error) {
+      console.error("Error getting seasonal recommendation:", error);
+      handleSend(`❌ Error: ${error.message}`);
+    }
     setShowSeasonalForm(false);
     toggleSuggestions();
   };
 
-  const handleSoilSubmit = (e) => {
+  const handleSoilSubmit = async (e) => {
     e.preventDefault();
-    handleSend(
-      `I want crop recommendations based on soil analysis: N:${soilParams.nitrogen}, P:${soilParams.phosphorous}, K:${soilParams.potassium}, Temperature:${soilParams.temperature}°C, Humidity:${soilParams.humidity}%, Rainfall:${soilParams.rainfall}mm`
-    );
+    try {
+      const result = await cropRecommendationService.getSoilBasedRecommendation(
+        soilParams
+      );
+
+      // Format the response for the chatbot
+      let response = `🌱 **Soil-Based Crop Recommendations**\n\n`;
+      response += `**Soil Parameters:**\n`;
+      response += `- Nitrogen (N): ${soilParams.nitrogen} mg/kg\n`;
+      response += `- Phosphorous (P): ${soilParams.phosphorous} mg/kg\n`;
+      response += `- Potassium (K): ${soilParams.potassium} mg/kg\n`;
+      response += `- Temperature: ${soilParams.temperature}°C\n`;
+      response += `- Humidity: ${soilParams.humidity}%\n`;
+      response += `- Rainfall: ${soilParams.rainfall}mm\n\n`;
+
+      if (result.recommendations && result.recommendations.length > 0) {
+        response += "**Top Recommended Crops:**\n";
+        result.recommendations.forEach((crop, index) => {
+          const probability = (crop.probability * 100).toFixed(1);
+          response += `${index + 1}. **${
+            crop.crop
+          }** - Confidence: ${probability}%\n`;
+        });
+      } else {
+        response +=
+          "No crop recommendations available for these soil parameters.";
+      }
+
+      handleSend(response);
+    } catch (error) {
+      console.error("Error getting soil recommendation:", error);
+      handleSend(`❌ Error: ${error.message}`);
+    }
     setShowSoilForm(false);
     toggleSuggestions();
   };
 
-  const handleDemandSubmit = (e) => {
+  const handleDemandSubmit = async (e) => {
     e.preventDefault();
-    handleSend(
-      `I want to analyze crop demand and market trends in ${demandDistrict} district.`
-    );
+    try {
+      const result = await cropRecommendationService.getDemandRecommendation(
+        demandDistrict
+      );
+
+      // Format the response for the chatbot
+      let response = `📊 **Demand Analysis for ${result.district}**\n\n`;
+
+      if (result.top_5_crops && result.top_5_crops.length > 0) {
+        response += "**Top 5 High-Demand Crops:**\n";
+        result.top_5_crops.forEach((crop, index) => {
+          response += `${index + 1}. **${
+            crop.crop
+          }** - Predicted Demand: ${crop.predicted_demand.toFixed(2)} tons\n`;
+        });
+      } else {
+        response += "No demand data available for this district.";
+      }
+
+      handleSend(response);
+    } catch (error) {
+      console.error("Error getting demand recommendation:", error);
+      handleSend(`❌ Error: ${error.message}`);
+    }
     setShowDemandForm(false);
     toggleSuggestions();
   };
@@ -262,7 +354,7 @@ const SuggestionRows = ({ handleSend, toggleSuggestions }) => {
               <button
                 key={suggestion.id}
                 className="px-3 py-1 bg-black text-white text-sm border border-gray-600 rounded-full whitespace-nowrap hover:bg-gray-800 transition-colors"
-                onClick={() => handleSuggestionClick(suggestion.text)}
+                onClick={() => handleSuggestionClickLocal(suggestion.text)}
               >
                 {suggestion.text}
               </button>
@@ -278,7 +370,7 @@ const SuggestionRows = ({ handleSend, toggleSuggestions }) => {
               <button
                 key={suggestion.id}
                 className="px-3 py-1 bg-black text-white text-sm border border-gray-600 rounded-full whitespace-nowrap hover:bg-gray-800 transition-colors"
-                onClick={() => handleSuggestionClick(suggestion.text)}
+                onClick={() => handleSuggestionClickLocal(suggestion.text)}
               >
                 {suggestion.text}
               </button>
@@ -621,4 +713,4 @@ const SuggestionRows = ({ handleSend, toggleSuggestions }) => {
   );
 };
 
-export default SuggestionRows;
+export default Suggestions;

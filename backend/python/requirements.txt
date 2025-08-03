@@ -10,3 +10,4 @@ scikit-learn
 python-multipart
 pandas
 feedparser
+httpx

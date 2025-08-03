@@ -7,7 +7,7 @@ import Register from "./components/firebase/Register";
 import Dashboard from "./components/dashboard/Dashboard";
 import Sidebar from "./components/utils/Sidebar";
 import Navbar from "./components/utils/Navbar";
-import ChatbotDialog from "./components/chatbot/ChatbotDialog";
+import { Chatbot } from "./components/chatbot-new";
 import ForumPage from "./components/forum/ForumPage";
 import WeatherForecast from "./components/weather/WeatherForecast";
 import FarmerRegistrationForm from "./components/utils/FarmerRegistration/FarmerRegistration.jsx";
@@ -26,9 +26,7 @@ import FarmServicesPage from "./components/dashboard/FarmServicesPage";
 import GoogleTranslate from "./components/GoogleTranslate.jsx";
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const sidebarRef = useRef(null);
-  const chatbotRef = useRef(null);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -36,14 +34,6 @@ function App() {
 
   const closeSidebar = () => {
     setIsSidebarOpen(false);
-  };
-
-  const toggleChat = () => {
-    setIsChatOpen(!isChatOpen);
-  };
-
-  const closeChat = () => {
-    setIsChatOpen(false);
   };
 
   useEffect(() => {
@@ -56,47 +46,29 @@ function App() {
       ) {
         closeSidebar();
       }
-
-      // Handle chatbot clicks
-      if (
-        chatbotRef.current &&
-        !chatbotRef.current.contains(event.target) &&
-        !event.target.closest(".chat-toggle")
-      ) {
-        closeChat();
-      }
     }
 
-    if (isSidebarOpen || isChatOpen) {
+    if (isSidebarOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isSidebarOpen, isChatOpen]);
+  }, [isSidebarOpen]);
 
   return (
     <UserContextProvider>
       <AuthProvider>
         <div className="flex flex-col min-h-screen m-0 p-0 overflow-x-hidden">
           {/* Navbar with toggle buttons */}
-          <Navbar
-            toggleSidebar={toggleSidebar}
-            isSidebarOpen={isSidebarOpen}
-            toggleChat={toggleChat}
-            isChatOpen={isChatOpen}
-          />
+          <Navbar toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
 
           {/* Sidebar (Visible on all pages) */}
           <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
 
           {/* Chatbot (Visible on all pages) */}
-          {isChatOpen && (
-            <div ref={chatbotRef}>
-              <ChatbotDialog closeChat={closeChat} />
-            </div>
-          )}
+          <Chatbot />
 
           {/* Main Content Area */}
           <main className="flex-grow pt-20 px-4">
