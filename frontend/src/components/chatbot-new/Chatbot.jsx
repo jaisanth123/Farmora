@@ -48,8 +48,10 @@ const Header = ({ closeChat }) => {
 const ChatbotDialog = ({ closeChat, children }) => {
   return (
     <div className="fixed bottom-24 right-6 w-96 h-140 bg-white rounded-lg shadow-xl z-50 flex flex-col overflow-hidden border border-gray-200">
-      <Header closeChat={closeChat} />
-      {children}
+      <div className="sticky top-0 z-10">
+        <Header closeChat={closeChat} />
+      </div>
+      <div className="flex-1 overflow-hidden">{children}</div>
     </div>
   );
 };
